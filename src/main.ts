@@ -1,0 +1,37 @@
+import 'reflect-metadata';
+import { createServer } from './server';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+/**
+ * Main entry point
+ */
+async function main() {
+  try {
+    // Create and start server
+    const server = await createServer();
+    const port = parseInt(process.env.PORT || '3000');
+    await server.start(port);
+
+    // Graceful shutdown
+    process.on('SIGTERM', async () => {
+      console.log('SIGTERM received, shutting down gracefully...');
+      await server.stop();
+      process.exit(0);
+    });
+
+    process.on('SIGINT', async () => {
+      console.log('SIGINT received, shutting down gracefully...');
+      await server.stop();
+      process.exit(0);
+    });
+  } catch (error) {
+    console.error('Failed to start application:', error);
+    process.exit(1);
+  }
+}
+
+// Start the application
+main();
