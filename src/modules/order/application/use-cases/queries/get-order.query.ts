@@ -1,6 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/common/di/types';
-import { IOrderRepository } from '../../ports/repositories/order.repository';
+import { TYPES } from '@/shared/common/di/types';
 import { OrderNotFoundError } from '../../errors/order.application-error';
 import {
   GetOrderRequestDto,
@@ -10,7 +9,9 @@ import {
 } from '../../dtos/get-order.request.dto';
 import { OrderResponseDto, OrdersListResponseDto } from '../../dtos/order.response.dto';
 import { OrderMapper } from '../../mappers/order.mapper';
-import { ILogger } from '@/common/data/logger/logger.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { ORDER_TYPES } from '@/modules/order/order.const';
+import { IOrderReadRepository } from '../../ports/repositories/order-read.repository';
 
 /**
  * Query: Get Order
@@ -19,7 +20,7 @@ import { ILogger } from '@/common/data/logger/logger.interface';
 @injectable()
 export class GetOrderQuery {
   constructor(
-    @inject(TYPES.OrderRepository) private readonly orderRepository: IOrderRepository,
+    @inject(ORDER_TYPES.OrderReadRepository) private readonly orderReadRepository: IOrderReadRepository,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 
@@ -34,7 +35,7 @@ export class GetOrderQuery {
 
     this.logger.info('Getting order', { orderId: validatedRequest.orderId });
 
-    const order = await this.orderRepository.findById(validatedRequest.orderId);
+    const order = await this.orderReadRepository.findById(validatedRequest.orderId);
 
     if (!order) {
       this.logger.warn('Order not found', { orderId: validatedRequest.orderId });
@@ -59,7 +60,7 @@ export class GetOrderQuery {
       limit: validatedRequest.limit,
     });
 
-    const orders = await this.orderRepository.findAll(
+    const orders = await this.orderReadRepository.findAll(
       validatedRequest.page,
       validatedRequest.limit
     );

@@ -10,10 +10,10 @@ export * from './use-cases/queries/get-order.query';
 export * from './use-cases/commands/change-order-status.command';
 
 // Event Handlers
-export * from './event-handlers/order-created.handler';
+export * from './events/handlers/order-created.handler';
 
 // Ports
-export * from './ports/repositories/order.repository';
+export * from './ports/repositories/order-write.repository';
 
 // Errors
 export * from './errors/order.application-error';

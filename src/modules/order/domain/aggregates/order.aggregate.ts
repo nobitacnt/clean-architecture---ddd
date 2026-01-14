@@ -1,4 +1,4 @@
-import { AggregateRoot } from '@/common/event/aggregate-root';
+import { AggregateRoot } from '@/shared/domain/events/aggregate-root';
 import { OrderEntity, OrderItem } from '../entities/order.entity';
 import { OrderId } from '../value-objects/order-id.vo';
 import { OrderStatus } from '../value-objects/order-status.vo';

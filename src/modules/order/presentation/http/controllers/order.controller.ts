@@ -1,11 +1,12 @@
 import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
-import { TYPES } from '@/common/di/types';
+import { TYPES } from '@/shared/common/di/types';
 import { CreateOrderCommand } from '@/modules/order/application/use-cases/commands/create-order.command';
 import { GetOrderQuery } from '@/modules/order/application/use-cases/queries/get-order.query';
 import { ChangeOrderStatusCommand } from '@/modules/order/application/use-cases/commands/change-order-status.command';
-import { BaseController } from '@/common/controllers/base.controller';
-import { ILogger } from '@/common/data/logger/logger.interface';
+import { BaseController } from '@/shared/presentation/http/controllers/base.controller';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { ORDER_TYPES } from '@/modules/order/order.const';
 
 /**
  * Controller for Order HTTP endpoints
@@ -13,9 +14,9 @@ import { ILogger } from '@/common/data/logger/logger.interface';
 @injectable()
 export class OrderController extends BaseController {
   constructor(
-    @inject(TYPES.CreateOrderCommand) private readonly createOrderCommand: CreateOrderCommand,
-    @inject(TYPES.GetOrderQuery) private readonly getOrderQuery: GetOrderQuery,
-    @inject(TYPES.ChangeOrderStatusCommand) private readonly changeOrderStatusCommand: ChangeOrderStatusCommand,
+    @inject(ORDER_TYPES.CreateOrderCommand) private readonly createOrderUseCase: CreateOrderCommand,
+    @inject(ORDER_TYPES.GetOrderQuery) private readonly getOrderUseCase: GetOrderQuery,
+    @inject(ORDER_TYPES.ChangeOrderStatusCommand) private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
     @inject(TYPES.Logger) logger: ILogger
   ) {
     super(logger);
@@ -28,7 +29,7 @@ export class OrderController extends BaseController {
   async createOrder(req: Request, res: Response): Promise<void> {
     try {
       // Execute use case (validation is done inside with Zod)
-      const result = await this.createOrderCommand.execute(req.body);
+      const result = await this.createOrderUseCase.execute(req.body);
 
       // Return response
       res.status(201).json(result);
@@ -43,7 +44,7 @@ export class OrderController extends BaseController {
    */
   async getOrder(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this.getOrderQuery.execute({
+      const result = await this.getOrderUseCase.execute({
         orderId: req.params.id,
       });
 
@@ -62,7 +63,7 @@ export class OrderController extends BaseController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      const result = await this.getOrderQuery.executeList({ page, limit });
+      const result = await this.getOrderUseCase.executeList({ page, limit });
 
       res.status(200).json(result);
     } catch (error) {
@@ -76,7 +77,7 @@ export class OrderController extends BaseController {
    */
   async changeOrderStatus(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this.changeOrderStatusCommand.execute({
+      const result = await this.changeOrderStatusUseCase.execute({
         orderId: req.params.id,
         newStatus: req.body.newStatus,
       });

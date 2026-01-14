@@ -5,14 +5,15 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import { Container } from 'inversify';
-import { container } from './common/di/container';
-import { loadCommonModules } from './common/di/load-modules';
-import { loadOrderModule } from './modules/order/infrastructure/di/order.module';
+import { container } from './shared/common/di/container';
+import { loadCommonModules } from './shared/common/di/load-modules';
+import { loadOrderModule } from './modules/order/order.module';
 import { createOrderRoutes } from './modules/order/presentation/http/routes/order.routes';
 import { OrderResolver } from './modules/order/presentation/graphql/resolvers/order.resolver';
 import { OrderController } from './modules/order/presentation/http/controllers/order.controller';
-import { TYPES } from './common/di/types';
-import { ILogger } from './common/data/logger/logger.interface';
+import { ILogger } from './shared/application/ports/logger/logger.interface';
+import { TYPES } from './shared/common/di/types';
+import { ORDER_TYPES } from './modules/order/order.const';
 
 /**
  * Server setup and initialization
@@ -63,7 +64,7 @@ export class Server {
     this.logger.info('Setting up REST API routes');
 
     // Bind controller to container
-    this.diContainer.bind<OrderController>(TYPES.OrderController).to(OrderController);
+    this.diContainer.bind<OrderController>(ORDER_TYPES.OrderController).to(OrderController);
 
     // Order routes
     const orderRoutes = createOrderRoutes(this.diContainer);
@@ -80,7 +81,7 @@ export class Server {
 
     try {
       // Bind resolver to container
-      this.diContainer.bind<OrderResolver>(TYPES.OrderResolver).to(OrderResolver);
+      this.diContainer.bind<OrderResolver>(ORDER_TYPES.OrderResolver).to(OrderResolver);
 
       // Build GraphQL schema
       const schema = await buildSchema({

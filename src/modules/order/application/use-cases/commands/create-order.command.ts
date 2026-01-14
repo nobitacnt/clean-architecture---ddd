@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/common/di/types';
-import { IOrderRepository } from '../../ports/repositories/order.repository';
+import { TYPES } from '@/shared/common/di/types';
+import { IOrderWriteRepository } from '../../ports/repositories/order-write.repository';
 import { OrderAggregate } from '@/modules/order/domain/aggregates/order.aggregate';
 import { OrderCreationFailedError } from '../../errors/order.application-error';
 import {
@@ -9,7 +9,9 @@ import {
 } from '../../dtos/create-order.request.dto';
 import { CreateOrderResponseDto } from '../../dtos/order.response.dto';
 import { OrderMapper } from '../../mappers/order.mapper';
-import { ILogger } from '@/common/data/logger/logger.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { ORDER_TYPES } from '@/modules/order/order.const';
+import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
 
 /**
  * Command: Create Order
@@ -18,7 +20,8 @@ import { ILogger } from '@/common/data/logger/logger.interface';
 @injectable()
 export class CreateOrderCommand {
   constructor(
-    @inject(TYPES.OrderRepository) private readonly orderRepository: IOrderRepository,
+    @inject(ORDER_TYPES.OrderWriteRepository) private readonly orderWriteRepository: IOrderWriteRepository,
+    @inject(TYPES.DomainEventsDispatcher) private readonly dispatcher: IEventDispatcher,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 
@@ -38,8 +41,9 @@ export class CreateOrderCommand {
         validatedRequest.items
       );
 
-      // Save within a transaction and dispatch events
-      await this.orderRepository.save(orderAggregate);
+      // Save and dispatch events
+      await this.orderWriteRepository.save(orderAggregate);
+      this.dispatcher.dispatchEventsForAggregate(orderAggregate);
 
       this.logger.info('Order created successfully', {
         orderId: orderAggregate.id.toString(),

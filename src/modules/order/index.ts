@@ -6,4 +6,4 @@ export * from './domain/events/order-created.event';
 export * from './domain/events/order-status-changed.event';
 export * from './application/use-cases/commands/create-order.command';
 export * from './application/use-cases/queries/get-order.query';
-export * from './infrastructure/di/order.module';
+export * from './order.module';

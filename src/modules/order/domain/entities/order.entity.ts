@@ -5,17 +5,17 @@ import { OrderStatus } from '../value-objects/order-status.vo';
  * Order Entity
  * Represents an order in the system
  */
-export interface OrderProps {
+export interface OrderSchema {
   id: OrderId;
   customerId: string;
-  items: OrderItem[];
+  items: OrderItemSchema[];
   totalAmount: number;
   status: OrderStatus;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface OrderItem {
+export interface OrderItemSchema {
   productId: string;
   productName: string;
   quantity: number;
@@ -23,9 +23,9 @@ export interface OrderItem {
 }
 
 export class OrderEntity {
-  private readonly props: OrderProps;
+  private readonly props: OrderSchema;
 
-  constructor(props: OrderProps) {
+  constructor(props: OrderSchema) {
     this.props = props;
   }
 
@@ -34,7 +34,7 @@ export class OrderEntity {
    */
   static create(
     customerId: string,
-    items: OrderItem[]
+    items: OrderItemSchema[]
   ): OrderEntity {
     const totalAmount = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -55,7 +55,7 @@ export class OrderEntity {
   /**
    * Reconstitute from persistence
    */
-  static fromPersistence(props: OrderProps): OrderEntity {
+  static fromPersistence(props: OrderSchema): OrderEntity {
     return new OrderEntity(props);
   }
 
@@ -68,7 +68,7 @@ export class OrderEntity {
     return this.props.customerId;
   }
 
-  get items(): OrderItem[] {
+  get items(): OrderItemSchema[] {
     return [...this.props.items];
   }
 

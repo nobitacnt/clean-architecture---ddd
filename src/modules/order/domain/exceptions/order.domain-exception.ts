@@ -1,4 +1,4 @@
-import { BaseError } from '@/common/errors/base.error';
+import { BaseError } from '@/shared/common/errors/base.error';
 
 /**
  * Base class for all domain exceptions in the Order module

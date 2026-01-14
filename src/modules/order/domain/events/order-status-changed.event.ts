@@ -1,4 +1,5 @@
-import { DomainEvent } from '@/common/event/domain-event';
+import { DomainEvent } from '@/shared/domain/events/domain-event';
+import { ORDER_EVENTS } from './event.const';
 
 /**
  * Domain event raised when an order status changes
@@ -14,6 +15,6 @@ export class OrderStatusChangedEvent extends DomainEvent {
   }
 
   getEventName(): string {
-    return 'OrderStatusChanged';
+    return ORDER_EVENTS.OrderStatusChanged;
   }
 }

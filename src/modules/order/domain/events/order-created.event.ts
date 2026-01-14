@@ -1,4 +1,4 @@
-import { DomainEvent } from '@/common/event/domain-event';
+import { DomainEvent } from '@/shared/domain/events/domain-event';
 import { OrderItem } from '../entities/order.entity';
 
 /**

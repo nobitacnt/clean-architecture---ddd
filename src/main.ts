@@ -15,18 +15,15 @@ async function main() {
     const port = parseInt(process.env.PORT || '3000');
     await server.start(port);
 
-    // Graceful shutdown
-    process.on('SIGTERM', async () => {
-      console.log('SIGTERM received, shutting down gracefully...');
+    const shutdown = async (signal: string) => {
+      console.log(`Received ${signal} shutting down...`);
       await server.stop();
       process.exit(0);
-    });
+    };
 
-    process.on('SIGINT', async () => {
-      console.log('SIGINT received, shutting down gracefully...');
-      await server.stop();
-      process.exit(0);
-    });
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+
   } catch (error) {
     console.error('Failed to start application:', error);
     process.exit(1);

@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { Container } from 'inversify';
-import { TYPES } from '@/common/di/types';
 import { OrderController } from '../controllers/order.controller';
+import { ORDER_TYPES } from '@/modules/order/order.const';
 
 /**
  * Setup order routes
  */
 export function createOrderRoutes(container: Container): Router {
   const router = Router();
-  const orderController = container.get<OrderController>(TYPES.OrderController);
+  const orderController = container.get<OrderController>(ORDER_TYPES.OrderController);
 
   // Create order
   router.post('/', (req, res) => orderController.createOrder(req, res));

@@ -2,7 +2,7 @@
 
 Dự án Order Management được xây dựng với **Clean Architecture** kết hợp **Domain-Driven Design (DDD)**, sử dụng Node.js, TypeScript, và Inversify cho Dependency Injection.
 
-## 🏗️ Kiến trúc
+## Kiến trúc
 
 ### Các Layer
 
@@ -21,10 +21,10 @@ Dự án Order Management được xây dựng với **Clean Architecture** kế
    - Ports: Repository Interfaces, UnitOfWork
 
 3. **Infrastructure Layer** - Technical Implementation
-   - Persistence: Prisma ORM
-   - Repositories: OrderRepositoryImpl
-   - Event Registration: OrderEventHandlersRegistrar
-   - DI Module: OrderModule
+   - Repositories
+   - Database
+   - Event bus
+   - Logger
 
 4. **Presentation Layer** - API
    - HTTP REST API: Express Controllers & Routes
@@ -33,15 +33,15 @@ Dự án Order Management được xây dựng với **Clean Architecture** kế
 
 ### Patterns được áp dụng
 
-- ✅ **Clean Architecture** - Phân tách rõ ràng các layer
-- ✅ **Domain-Driven Design** - Aggregate Root, Value Objects, Domain Events
-- ✅ **CQRS** - Tách biệt Command và Query
-- ✅ **Event-Driven Architecture** - Domain Events với Event Bus
-- ✅ **Dependency Injection** - Inversify Container
-- ✅ **Repository Pattern** - Trừu tượng hóa data access
-- ✅ **Unit of Work** - Quản lý transactions
+- **Clean Architecture** - Phân tách rõ ràng các layer
+- **Domain-Driven Design** - Aggregate Root, Value Objects, Domain Events
+- **CQRS** - Tách biệt Command và Query
+- **Event-Driven Architecture** - Domain Events với Event Bus
+- **Dependency Injection** - Inversify Container
+- **Repository Pattern** - Trừu tượng hóa data access
+- **Unit of Work** - Quản lý transactions
 
-## 🚀 Cài đặt
+##  Cài đặt
 
 ### Yêu cầu
 
@@ -50,11 +50,14 @@ Dự án Order Management được xây dựng với **Clean Architecture** kế
 - npm hoặc yarn
 
 ### Các bước cài đặt
+- Tiện nhất thì chạy luôn file `start.sh` là xong
+- Nếu muốn làm thủ công thì theo các bước sau:
 
 ```bash
 # 1. Clone repository
 git clone <your-repo-url>
 cd ddd
+docker-compose up -d
 
 # 2. Cài đặt dependencies
 npm install
@@ -73,7 +76,9 @@ npm run prisma:migrate
 npm run dev
 ```
 
-## 📝 Sử dụng
+
+
+## Sử dụng
 
 ### REST API
 
@@ -171,7 +176,7 @@ query {
 }
 ```
 
-## 🔄 Luồng xử lý
+## Luồng xử lý
 
 ### Tạo đơn hàng (Create Order)
 
@@ -180,7 +185,6 @@ query {
 3. **Handler** tạo **OrderAggregate** (Domain)
 4. **Aggregate** raise **OrderCreatedEvent** (Domain Event)
 5. **Repository** lưu Order vào database
-6. **UnitOfWork** dispatch events thông qua **EventBus**
 7. **OrderCreatedEventHandler** xử lý side effects (email, inventory, etc.)
 8. Response trả về client
 
@@ -201,7 +205,7 @@ query {
 4. **OrderPresenter** format dữ liệu cho presentation layer
 5. Response trả về client
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -211,7 +215,7 @@ npm test
 npm run test:watch
 ```
 
-## 📦 Scripts
+## Scripts
 
 - `npm run build` - Build production
 - `npm start` - Start production server
@@ -222,27 +226,7 @@ npm run test:watch
 - `npm run lint` - Lint code
 - `npm run format` - Format code với Prettier
 
-## 🗂️ Cấu trúc thư mục
-
-```
-src/
-├── common/                  # Shared infrastructure
-│   ├── di/                 # Dependency Injection
-│   ├── event/              # Event Bus & Domain Events
-│   ├── logger/             # Logging
-│   ├── errors/             # Base errors
-│   └── utils/              # Utilities
-├── modules/
-│   └── order/              # Order Module
-│       ├── domain/         # Domain Layer
-│       ├── application/    # Application Layer
-│       ├── infrastructure/ # Infrastructure Layer
-│       └── presentation/   # Presentation Layer
-├── server.ts               # Server setup
-└── main.ts                 # Entry point
-```
-
-## 🎯 Business Rules
+##  Business Rules
 
 ### Order Status Transitions
 
@@ -258,18 +242,10 @@ src/
 - Không thể cancel đơn đã DELIVERED
 - Không thể cancel đơn đã CANCELLED
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
+## License
 
 MIT License
 
-## 👨‍💻 Author
+## Author
 
-Your Name
+TuyenHV

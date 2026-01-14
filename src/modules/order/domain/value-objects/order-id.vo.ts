@@ -1,4 +1,4 @@
-import { UuidUtil } from '@/common/utils/uuid';
+import { UuidUtil } from '@/shared/common/utils/uuid';
 
 /**
  * Value Object for Order ID

@@ -1,13 +1,14 @@
 import { Resolver, Query, Mutation, Arg, ID, Int } from 'type-graphql';
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/common/di/types';
-import { Logger } from '@/common/data/logger/providers/simple-logger';
+import { TYPES } from '@/shared/common/di/types';
 import { CreateOrderCommand } from '@/modules/order/application/use-cases/commands/create-order.command';
 import { GetOrderQuery } from '@/modules/order/application/use-cases/queries/get-order.query';
 import { ChangeOrderStatusCommand } from '@/modules/order/application/use-cases/commands/change-order-status.command';
 import { CreateOrderInput } from '../inputs/create-order.input';
 import { ChangeOrderStatusInput } from '../inputs/change-order-status.input';
 import { OrderType, CreateOrderResultType, ChangeOrderStatusResultType } from '../schemas/order.schema';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { ORDER_TYPES } from '@/modules/order/order.const';
 
 /**
  * GraphQL resolver for Order
@@ -16,10 +17,10 @@ import { OrderType, CreateOrderResultType, ChangeOrderStatusResultType } from '.
 @Resolver(() => OrderType)
 export class OrderResolver {
   constructor(
-    @inject(TYPES.CreateOrderCommand) private readonly createOrderUseCase: CreateOrderCommand,
-    @inject(TYPES.GetOrderQuery) private readonly getOrderUseCase: GetOrderQuery,
-    @inject(TYPES.ChangeOrderStatusCommand) private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
-    @inject(TYPES.Logger) private readonly logger: Logger
+    @inject(ORDER_TYPES.CreateOrderCommand) private readonly createOrderUseCase: CreateOrderCommand,
+    @inject(ORDER_TYPES.GetOrderQuery) private readonly getOrderUseCase: GetOrderQuery,
+    @inject(ORDER_TYPES.ChangeOrderStatusCommand) private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
+    @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 
   /**

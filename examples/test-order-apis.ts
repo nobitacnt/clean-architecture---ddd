@@ -18,11 +18,11 @@ interface CreateOrderRequest {
 }
 
 async function testRestAPI() {
-  console.log('\n🔵 Testing REST API...\n');
+  console.log('\n Testing REST API...\n');
 
   try {
     // 1. Create Order
-    console.log('1️⃣ Creating a new order...');
+    console.log(' Creating a new order...');
     const createOrderRequest: CreateOrderRequest = {
       customerId: 'customer-001',
       items: [
@@ -45,21 +45,21 @@ async function testRestAPI() {
       `${API_BASE_URL}/api/orders`,
       createOrderRequest
     );
-    console.log('✅ Order created:', createResponse.data);
+    console.log('Order created:', createResponse.data);
     const orderId = createResponse.data.id;
 
     // 2. Get Order
-    console.log('\n2️⃣ Getting order details...');
+    console.log('\n Getting order details...');
     const getResponse = await axios.get(`${API_BASE_URL}/api/orders/${orderId}`);
-    console.log('✅ Order details:', getResponse.data);
+    console.log(' Order details:', getResponse.data);
 
     // 3. Get All Orders
-    console.log('\n3️⃣ Getting all orders...');
+    console.log('\n Getting all orders...');
     const getAllResponse = await axios.get(`${API_BASE_URL}/api/orders?page=1&limit=10`);
-    console.log('✅ All orders:', getAllResponse.data);
+    console.log('All orders:', getAllResponse.data);
 
   } catch (error: any) {
-    console.error('❌ REST API Error:', error.response?.data || error.message);
+    console.error('REST API Error:', error.response?.data || error.message);
   }
 }
 
@@ -101,11 +101,11 @@ async function testGraphQLAPI() {
     const createResponse = await axios.post(`${API_BASE_URL}/graphql`, {
       query: createMutation,
     });
-    console.log('✅ Order created:', createResponse.data.data.createOrder);
+    console.log('Order created:', createResponse.data.data.createOrder);
     const orderId = createResponse.data.data.createOrder.id;
 
     // 2. Get Order via GraphQL
-    console.log('\n2️⃣ Getting order via GraphQL...');
+    console.log('\n Getting order via GraphQL...');
     const getQuery = `
       query {
         order(id: "${orderId}") {
@@ -129,10 +129,10 @@ async function testGraphQLAPI() {
     const getResponse = await axios.post(`${API_BASE_URL}/graphql`, {
       query: getQuery,
     });
-    console.log('✅ Order details:', getResponse.data.data.order);
+    console.log('Order details:', getResponse.data.data.order);
 
     // 3. Get All Orders via GraphQL
-    console.log('\n3️⃣ Getting all orders via GraphQL...');
+    console.log('\n Getting all orders via GraphQL...');
     const getAllQuery = `
       query {
         orders(page: 1, limit: 10) {
@@ -148,15 +148,15 @@ async function testGraphQLAPI() {
     const getAllResponse = await axios.post(`${API_BASE_URL}/graphql`, {
       query: getAllQuery,
     });
-    console.log('✅ All orders:', getAllResponse.data.data.orders);
+    console.log('All orders:', getAllResponse.data.data.orders);
 
   } catch (error: any) {
-    console.error('❌ GraphQL API Error:', error.response?.data || error.message);
+    console.error('GraphQL API Error:', error.response?.data || error.message);
   }
 }
 
 async function main() {
-  console.log('🚀 Starting API tests...');
+  console.log('Starting API tests...');
   console.log('Make sure the server is running on http://localhost:3000');
 
   // Wait for server to be ready
