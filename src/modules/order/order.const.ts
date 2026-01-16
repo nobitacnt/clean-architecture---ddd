@@ -7,6 +7,10 @@ export const ORDER_TYPES = {
   CreateOrderCommand: Symbol.for('CreateOrderCommand'),
   ChangeOrderStatusCommand: Symbol.for('ChangeOrderStatusCommand'),
   
+  // Order module - Events
+  OrderCreatedEventHandler: Symbol.for('OrderCreatedEventHandler'),
+  OrderStatusChangedEventHandler: Symbol.for('OrderStatusChangedEventHandler'),
+  
   // Order Module - Queries
   GetOrderQuery: Symbol.for('GetOrderQuery'),
   

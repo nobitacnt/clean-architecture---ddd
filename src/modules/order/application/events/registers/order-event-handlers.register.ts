@@ -7,6 +7,7 @@ import { OrderCreatedEvent } from '@/modules/order/domain/events/order-created.e
 import { OrderStatusChangedEvent } from '@/modules/order/domain/events/order-status-changed.event';
 import { OrderCreatedEventHandler } from '../handlers/order-created.handler';
 import { OrderStatusChangedEventHandler } from '../handlers/order-status-changed.handler';
+import { ORDER_TYPES } from '@/modules/order/order.const';
 
 /**
  * Register all order-related event handlers
@@ -15,6 +16,8 @@ import { OrderStatusChangedEventHandler } from '../handlers/order-status-changed
 export class OrderEventHandlersRegistrar {
   constructor(
     @inject(TYPES.InternalEventBus) private readonly eventBus: IEventBus,
+    @inject(ORDER_TYPES.OrderCreatedEventHandler) private readonly orderCreatedEventHandler: OrderCreatedEventHandler,
+    @inject(ORDER_TYPES.OrderStatusChangedEventHandler) private readonly orderStatusChangedEventHandler: OrderStatusChangedEventHandler,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 
@@ -26,12 +29,12 @@ export class OrderEventHandlersRegistrar {
 
     // Register OrderCreated event handler
     this.eventBus.subscribe(ORDER_EVENTS.OrderCreated, async (event) => {
-      await (new OrderCreatedEventHandler(this.logger)).handle(event as OrderCreatedEvent);
+      await this.orderCreatedEventHandler.handle(event as OrderCreatedEvent);
     });
 
     // Register OrderStatusChanged event handler
     this.eventBus.subscribe(ORDER_EVENTS.OrderStatusChanged, async (event) => {
-      await (new OrderStatusChangedEventHandler(this.logger)).handle(event as OrderStatusChangedEvent);
+      await this.orderStatusChangedEventHandler.handle(event as OrderStatusChangedEvent);
     });
 
     this.logger.info('Order event handlers registered successfully');

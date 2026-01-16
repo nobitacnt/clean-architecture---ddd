@@ -1,5 +1,6 @@
 import { DomainEvent } from '@/shared/domain/events/domain-event';
 import { OrderItem } from '../entities/order.entity';
+import { ORDER_EVENTS } from './event.const';
 
 /**
  * Domain event raised when an order is created
@@ -15,6 +16,6 @@ export class OrderCreatedEvent extends DomainEvent {
   }
 
   getEventName(): string {
-    return 'OrderCreated';
+    return ORDER_EVENTS.OrderCreated;
   }
 }

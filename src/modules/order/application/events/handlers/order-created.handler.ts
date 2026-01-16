@@ -1,14 +1,17 @@
 
 import { OrderCreatedEvent } from '@/modules/order/domain/events/order-created.event';
 import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+import { inject, injectable } from 'inversify';
 
 /**
  * Event handler for OrderCreatedEvent
  * This is where you can add side effects when an order is created
  * Examples: Send email, update inventory, notify shipping service, etc.
  */
+@injectable()
 export class OrderCreatedEventHandler {
-  constructor(private readonly logger: ILogger) {}
+  @inject(TYPES.Logger) private readonly logger: ILogger
 
   /**
    * Handle the OrderCreated event
