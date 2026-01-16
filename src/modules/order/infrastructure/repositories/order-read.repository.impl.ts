@@ -1,11 +1,10 @@
 import { injectable, inject } from 'inversify';
-import { OrderItem as OrderItemModel } from '@prisma/client';
 import { TYPES } from '@/shared/common/di/types';
 import { OrderAggregate } from '@/modules/order/domain/aggregates/order.aggregate';
 import { OrderEntity, OrderItem } from '@/modules/order/domain/entities/order.entity';
 import { OrderId } from '@/modules/order/domain/value-objects/order-id.vo';
 import { OrderStatus } from '@/modules/order/domain/value-objects/order-status.vo';
-import { OrderWithItems } from '../models/order.model';
+import { OrderModel, OrderItemModel } from '../models/order.model';
 import { IOrderReadRepository } from '../../application/ports/repositories/order-read.repository';
 import { PrismaClientManager } from '@/shared/infrastructure/database/prisma-client-manager';
 import { DatabaseRole } from '@/shared/common/const';
@@ -64,7 +63,7 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return orders.map((order: OrderWithItems) => this.toDomain(order));
+    return orders.map((order: OrderModel) => this.toDomain(order));
   }
 
   /**
@@ -80,15 +79,15 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return orders.map((order: OrderWithItems) => this.toDomain(order));
+    return orders.map((order: OrderModel) => this.toDomain(order));
   }
 
 
   /**
    * Convert from Prisma model to domain aggregate
    */
-  private toDomain(orderData: OrderWithItems): OrderAggregate {
-    const items: OrderItem[] = orderData.items.map((item: OrderItemModel) => ({
+  private toDomain(orderModel: OrderModel): OrderAggregate {
+    const items: OrderItem[] = orderModel.items.map((item: OrderItemModel) => ({
       productId: item.productId,
       productName: item.productName,
       quantity: item.quantity,
@@ -96,13 +95,13 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
     }));
 
     const entity = OrderEntity.fromPersistence({
-      id: OrderId.fromString(orderData.id),
-      customerId: orderData.customerId,
+      id: OrderId.fromString(orderModel.id),
+      customerId: orderModel.customerId,
       items,
-      totalAmount: orderData.totalAmount,
-      status: OrderStatus.fromString(orderData.status),
-      createdAt: orderData.createdAt,
-      updatedAt: orderData.updatedAt,
+      totalAmount: orderModel.totalAmount,
+      status: OrderStatus.fromString(orderModel.status),
+      createdAt: orderModel.createdAt,
+      updatedAt: orderModel.updatedAt,
     });
 
     return OrderAggregate.fromEntity(entity);

@@ -5,15 +5,15 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import { Container } from 'inversify';
-import { container } from './shared/common/di/container';
-import { loadCommonModules } from './shared/common/di/load-modules';
-import { loadOrderModule } from './modules/order/order.module';
-import { createOrderRoutes } from './modules/order/presentation/http/routes/order.routes';
-import { OrderResolver } from './modules/order/presentation/graphql/resolvers/order.resolver';
-import { OrderController } from './modules/order/presentation/http/controllers/order.controller';
-import { ILogger } from './shared/application/ports/logger/logger.interface';
-import { TYPES } from './shared/common/di/types';
-import { ORDER_TYPES } from './modules/order/order.const';
+import { container } from '@/shared/common/di/container';
+import { loadSharedModules } from '@/shared/shared.module';
+import { loadOrderModule } from '@/modules/order/order.module';
+import { loadCustomerModule } from '@/modules/customer/customer.module';
+import { createOrderRoutes } from '@/modules/order/presentation/http/routes/order.routes';
+import { createCustomerRoutes } from '@/modules/customer/presentation/http/routes/customer.routes';
+import { OrderResolver } from '@/modules/order/presentation/graphql/resolvers/order.resolver';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
 
 /**
  * Server setup and initialization
@@ -63,12 +63,10 @@ export class Server {
   private setupRestRoutes(): void {
     this.logger.info('Setting up REST API routes');
 
-    // Bind controller to container
-    this.diContainer.bind<OrderController>(ORDER_TYPES.OrderController).to(OrderController);
-
-    // Order routes
     const orderRoutes = createOrderRoutes(this.diContainer);
+    const customerRoutes = createCustomerRoutes(this.diContainer);
     this.app.use('/api/orders', orderRoutes);
+    this.app.use('/api/customers', customerRoutes);
 
     this.logger.info('REST API routes configured');
   }
@@ -80,9 +78,6 @@ export class Server {
     this.logger.info('Setting up GraphQL server');
 
     try {
-      // Bind resolver to container
-      this.diContainer.bind<OrderResolver>(ORDER_TYPES.OrderResolver).to(OrderResolver);
-
       // Build GraphQL schema
       const schema = await buildSchema({
         resolvers: [OrderResolver],
@@ -152,8 +147,9 @@ export class Server {
  */
 export async function createServer(): Promise<Server> {
   // Load all modules into DI container
-  loadCommonModules(container);
+  loadSharedModules(container);
   loadOrderModule(container);
+  loadCustomerModule(container);
 
   // Create server
   const server = new Server(container);

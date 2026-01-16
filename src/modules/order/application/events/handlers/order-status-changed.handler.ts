@@ -1,13 +1,16 @@
 import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 import { OrderStatusChangedEvent } from '@/modules/order/domain/events/order-status-changed.event';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/shared/common/di/types';
 
 /**
  * Event handler for OrderStatusChangedEvent
  * This is where you can add side effects when an order status is changed
  * Examples: Send email, notify shipping service, etc.
  */
+@injectable()
 export class OrderStatusChangedEventHandler {
-  constructor(private readonly logger: ILogger) {}
+  constructor(@inject(TYPES.Logger) private readonly logger: ILogger) {}
 
   /**
    * Handle the OrderStatusChanged  event

@@ -5,6 +5,7 @@ import {
   ChangeOrderStatusResponseDto,
   OrdersListResponseDto,
 } from '../dtos/order.response.dto';
+import { PlaceOrderWithCreditCheckResponseDto } from '../dtos/place-order-with-credit-check.response.dto';
 
 /**
  * Mapper for converting between domain aggregates and response DTOs
@@ -93,6 +94,25 @@ export class OrderMapper {
       newStatus: order.status.toString(),
       updatedAt: order.updatedAt.toISOString(),
       message: message || 'Order status changed successfully',
+    };
+  }
+
+  /**
+   * Map to PlaceOrderWithCreditCheckResponseDto
+   */
+  public toPlaceOrderWithCreditCheckResponseDto(
+    order: OrderAggregate,
+    approved: boolean,
+    requiresManualApproval: boolean,
+    requiredDeposit: number,
+    message?: string
+  ): PlaceOrderWithCreditCheckResponseDto {
+    return {
+      orderId: order.getId(),
+      approved,
+      requiresManualApproval,
+      requiredDeposit,
+      message,
     };
   }
 }

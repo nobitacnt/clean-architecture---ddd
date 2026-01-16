@@ -11,6 +11,19 @@ datasource db {
   relationMode = "prisma"
 }
 
+model Customer {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String
+  creditLimit Float    @default(100000) @map("credit_limit")
+  isVerified  Boolean  @default(false) @map("is_verified")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  orders      Order[]
+
+  @@map("customers")
+}
+
 model Order {
   id          String      @id @default(uuid())
   customerId  String      @map("customer_id")
@@ -19,6 +32,7 @@ model Order {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   items       OrderItem[]
+  customer    Customer    @relation(fields: [customerId], references: [id])
 
   @@map("orders")
 }

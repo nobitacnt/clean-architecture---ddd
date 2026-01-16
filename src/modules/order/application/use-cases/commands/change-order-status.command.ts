@@ -1,6 +1,5 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '@/shared/common/di/types';
-import { OrderDomainService } from '@/modules/order/domain/services/order-domain.service';
 import { OrderStatus } from '@/modules/order/domain/value-objects/order-status.vo';
 import { OrderNotFoundError } from '../../errors/order.application-error';
 import { OrderMapper } from '../../mappers/order.mapper';
@@ -24,7 +23,6 @@ export class ChangeOrderStatusCommand {
   constructor(
     @inject(ORDER_TYPES.OrderReadRepository) private readonly orderReadRepository: IOrderReadRepository,
     @inject(ORDER_TYPES.OrderWriteRepository) private readonly orderWriteRepository: IOrderWriteRepository,
-    @inject(ORDER_TYPES.OrderDomainService) private readonly orderDomainService: OrderDomainService,
     @inject(ORDER_TYPES.OrderMapper) private readonly orderMapper: OrderMapper,
     @inject(TYPES.DomainEventsDispatcher) private readonly dispatcher: IEventDispatcher,
     @inject(TYPES.Logger) private readonly logger: ILogger
@@ -50,13 +48,9 @@ export class ChangeOrderStatusCommand {
     const previousStatus = order.status.toString();
     const newStatus = OrderStatus.fromString(validatedRequest.newStatus);
 
-    // Special handling for cancellation
-    if (validatedRequest.newStatus === 'CANCELLED') {
-      this.orderDomainService.cancelOrder(order);
-    } else {
-      // Regular status change
-      order.changeStatus(newStatus);
-    }
+    // Aggregate handles all status changes including cancellation
+    // Business rules are validated inside the aggregate
+    order.changeStatus(newStatus);
 
     // Save and dispatch events
     await this.orderWriteRepository.save(order);

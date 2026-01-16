@@ -7,6 +7,10 @@ export const ORDER_TYPES = {
   CreateOrderCommand: Symbol.for('CreateOrderCommand'),
   ChangeOrderStatusCommand: Symbol.for('ChangeOrderStatusCommand'),
   
+  // Order module - Events
+  OrderCreatedEventHandler: Symbol.for('OrderCreatedEventHandler'),
+  OrderStatusChangedEventHandler: Symbol.for('OrderStatusChangedEventHandler'),
+  
   // Order Module - Queries
   GetOrderQuery: Symbol.for('GetOrderQuery'),
   
@@ -14,7 +18,7 @@ export const ORDER_TYPES = {
   OrderMapper: Symbol.for('OrderMapper'),
   
   // Order Module - Domain Services
-  OrderDomainService: Symbol.for('OrderDomainService'),
+  OrderPlacementDomainService: Symbol.for('OrderPlacementDomainService'),
   
   // Order Module - Presentation
   OrderController: Symbol.for('OrderController'),

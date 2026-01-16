@@ -79,7 +79,7 @@ export class OrderResolver {
     try {
       const result = await this.changeOrderStatusUseCase.execute({
         orderId: input.orderId,
-        newStatus: input.newStatus,
+        newStatus: input.newStatus as 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
       });
       return result as ChangeOrderStatusResultType;
     } catch (error) {

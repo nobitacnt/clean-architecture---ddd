@@ -8,6 +8,7 @@ import {
   InvalidOrderStatusTransitionException,
   OrderAlreadyCancelledException,
 } from '../exceptions/order.domain-exception';
+import { OrderCanBeCancelledRule } from '../rules/order-can-be-cancelled.rule';
 
 /**
  * Order Aggregate Root
@@ -52,6 +53,11 @@ export class OrderAggregate extends AggregateRoot {
    * Change the order status
    */
   changeStatus(newStatus: OrderStatus): void {
+    // Special handling for cancellation - apply cancellation business rules
+    if (newStatus.isCancelled()) {
+      OrderCanBeCancelledRule.checkOrThrow(this);
+    }
+
     // Business rule: cannot modify cancelled orders
     if (this.order.status.isCancelled()) {
       throw new OrderAlreadyCancelledException();
@@ -81,10 +87,21 @@ export class OrderAggregate extends AggregateRoot {
 
   /**
    * Cancel the order
+   * Applies business rule validation before cancellation
    */
   cancel(): void {
+    // Apply business rule: check if order can be cancelled
+    OrderCanBeCancelledRule.checkOrThrow(this);
+    
     const cancelledStatus = OrderStatus.fromString('CANCELLED');
     this.changeStatus(cancelledStatus);
+  }
+
+  /**
+   * Check if this order can be cancelled
+   */
+  canBeCancelled(): boolean {
+    return OrderCanBeCancelledRule.isSatisfiedBy(this);
   }
 
   /**

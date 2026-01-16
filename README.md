@@ -50,7 +50,6 @@ Dự án Order Management được xây dựng với **Clean Architecture** kế
 - npm hoặc yarn
 
 ### Các bước cài đặt
-- Tiện nhất thì chạy luôn file `start.sh` là xong
 - Nếu muốn làm thủ công thì theo các bước sau:
 
 ```bash
@@ -82,13 +81,25 @@ npm run dev
 
 ### REST API
 
+#### Tạo khách hàng
+
+```bash
+curl -X POST http://localhost:3000/api/customers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "customer-123@gmail.com",
+    "name": "customer-123",
+    "creditLimit": 1000
+  }'
+```
+
 #### Tạo đơn hàng
 
 ```bash
 curl -X POST http://localhost:3000/api/orders \
   -H "Content-Type: application/json" \
   -d '{
-    "customerId": "customer-123",
+    "customerId": "f942e2e7-a9b8-4c31-b2c9-8cf573f50f08",
     "items": [
       {
         "productId": "prod-1",
@@ -109,8 +120,20 @@ curl http://localhost:3000/api/orders/{orderId}
 #### Lấy danh sách đơn hàng
 
 ```bash
-curl http://localhost:3000/api/orders?page=1&limit=10
+curl "http://localhost:3000/api/orders?page=1&limit=10"
 ```
+
+#### Thay đổi trạng thái đơn hàng
+
+```bash
+curl -X PATCH http://localhost:3000/api/orders/{orderId}/status \
+  -H "Content-Type: application/json" \
+  -d '{
+    "newStatus": "CONFIRMED"
+  }'
+```
+
+Các trạng thái hợp lệ: `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`
 
 ### GraphQL API
 
@@ -176,6 +199,20 @@ query {
 }
 ```
 
+#### Thay đổi trạng thái đơn hàng
+
+```graphql
+mutation ChangeOrderStatus {
+    changeOrderStatus(input: { orderId: "0209ecc7-083b-4160-9aee-9dfb501a89f7", newStatus: "PROCESSING" }) {
+        id
+        previousStatus
+        newStatus
+        updatedAt
+        message
+    }
+}
+```
+
 ## Luồng xử lý
 
 ### Tạo đơn hàng (Create Order)
@@ -207,13 +244,44 @@ query {
 
 ## Testing
 
+### Run Tests
+
 ```bash
 # Run all tests
 npm test
 
 # Run tests in watch mode
 npm run test:watch
+
+# Run specific test file
+npm test -- test/unit/domain/order-status.spec.ts
+
+# Run tests with coverage
+npm test -- --coverage
 ```
+
+### Test Structure
+
+```
+test/
+├── unit/                     # Unit tests
+│   ├── domain/              # Domain layer tests
+│   │   ├── order-aggregate.spec.ts
+│   │   └── order-status.spec.ts
+│   └── application/         # Application layer tests
+│       └── create-order-command.spec.ts
+└── integration/             # Integration tests
+```
+
+### Available Tests
+
+- **Domain Layer Tests**
+  - OrderAggregate: Tạo order, thay đổi trạng thái, cancel order
+  - OrderStatus: Value object validation và status transitions
+  
+- **Application Layer Tests**
+  - CreateOrderCommand: Use case tạo order
+  - (Có thể thêm tests cho các commands/queries khác)
 
 ## Scripts
 
