@@ -1,13 +1,15 @@
 import { injectable, inject } from 'inversify';
-import { TYPES} from '@/shared/common/di/types';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
-import { IEventBus } from '@/shared/application/ports/event-bus/event-bus.interface';
+
 import { ORDER_EVENTS } from '@/modules/order/domain/events/event.const';
 import { OrderCreatedEvent } from '@/modules/order/domain/events/order-created.event';
 import { OrderStatusChangedEvent } from '@/modules/order/domain/events/order-status-changed.event';
+import { ORDER_TYPES } from '@/modules/order/order.const';
+import { IEventBus } from '@/shared/application/ports/event-bus/event-bus.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+
 import { OrderCreatedEventHandler } from '../handlers/order-created.handler';
 import { OrderStatusChangedEventHandler } from '../handlers/order-status-changed.handler';
-import { ORDER_TYPES } from '@/modules/order/order.const';
 
 /**
  * Register all order-related event handlers
@@ -16,8 +18,10 @@ import { ORDER_TYPES } from '@/modules/order/order.const';
 export class OrderEventHandlersRegistrar {
   constructor(
     @inject(TYPES.InternalEventBus) private readonly eventBus: IEventBus,
-    @inject(ORDER_TYPES.OrderCreatedEventHandler) private readonly orderCreatedEventHandler: OrderCreatedEventHandler,
-    @inject(ORDER_TYPES.OrderStatusChangedEventHandler) private readonly orderStatusChangedEventHandler: OrderStatusChangedEventHandler,
+    @inject(ORDER_TYPES.OrderCreatedEventHandler)
+    private readonly orderCreatedEventHandler: OrderCreatedEventHandler,
+    @inject(ORDER_TYPES.OrderStatusChangedEventHandler)
+    private readonly orderStatusChangedEventHandler: OrderStatusChangedEventHandler,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 

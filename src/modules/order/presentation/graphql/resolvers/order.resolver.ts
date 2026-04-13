@@ -1,14 +1,20 @@
-import { Resolver, Query, Mutation, Arg, ID, Int } from 'type-graphql';
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
+import { Resolver, Query, Mutation, Arg, ID, Int } from 'type-graphql';
+
+import { ChangeOrderStatusCommand } from '@/modules/order/application/use-cases/commands/change-order-status.command';
 import { CreateOrderCommand } from '@/modules/order/application/use-cases/commands/create-order.command';
 import { GetOrderQuery } from '@/modules/order/application/use-cases/queries/get-order.query';
-import { ChangeOrderStatusCommand } from '@/modules/order/application/use-cases/commands/change-order-status.command';
-import { CreateOrderInput } from '../inputs/create-order.input';
-import { ChangeOrderStatusInput } from '../inputs/change-order-status.input';
-import { OrderType, CreateOrderResultType, ChangeOrderStatusResultType } from '../schemas/order.schema';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 import { ORDER_TYPES } from '@/modules/order/order.const';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+
+import { ChangeOrderStatusInput } from '../inputs/change-order-status.input';
+import { CreateOrderInput } from '../inputs/create-order.input';
+import {
+  OrderType,
+  CreateOrderResultType,
+  ChangeOrderStatusResultType,
+} from '../schemas/order.schema';
 
 /**
  * GraphQL resolver for Order
@@ -19,7 +25,8 @@ export class OrderResolver {
   constructor(
     @inject(ORDER_TYPES.CreateOrderCommand) private readonly createOrderUseCase: CreateOrderCommand,
     @inject(ORDER_TYPES.GetOrderQuery) private readonly getOrderUseCase: GetOrderQuery,
-    @inject(ORDER_TYPES.ChangeOrderStatusCommand) private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
+    @inject(ORDER_TYPES.ChangeOrderStatusCommand)
+    private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 
@@ -75,11 +82,18 @@ export class OrderResolver {
    * Mutation to change order status
    */
   @Mutation(() => ChangeOrderStatusResultType)
-  async changeOrderStatus(@Arg('input') input: ChangeOrderStatusInput): Promise<ChangeOrderStatusResultType> {
+  async changeOrderStatus(
+    @Arg('input') input: ChangeOrderStatusInput
+  ): Promise<ChangeOrderStatusResultType> {
     try {
       const result = await this.changeOrderStatusUseCase.execute({
         orderId: input.orderId,
-        newStatus: input.newStatus as 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
+        newStatus: input.newStatus as
+          | 'CONFIRMED'
+          | 'PROCESSING'
+          | 'SHIPPED'
+          | 'DELIVERED'
+          | 'CANCELLED',
       });
       return result as ChangeOrderStatusResultType;
     } catch (error) {

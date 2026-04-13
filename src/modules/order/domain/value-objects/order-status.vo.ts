@@ -68,18 +68,9 @@ export class OrderStatus {
    */
   canTransitionTo(newStatus: OrderStatus): boolean {
     const transitions: Record<OrderStatusEnum, OrderStatusEnum[]> = {
-      [OrderStatusEnum.PENDING]: [
-        OrderStatusEnum.CONFIRMED,
-        OrderStatusEnum.CANCELLED,
-      ],
-      [OrderStatusEnum.CONFIRMED]: [
-        OrderStatusEnum.PROCESSING,
-        OrderStatusEnum.CANCELLED,
-      ],
-      [OrderStatusEnum.PROCESSING]: [
-        OrderStatusEnum.SHIPPED,
-        OrderStatusEnum.CANCELLED,
-      ],
+      [OrderStatusEnum.PENDING]: [OrderStatusEnum.CONFIRMED, OrderStatusEnum.CANCELLED],
+      [OrderStatusEnum.CONFIRMED]: [OrderStatusEnum.PROCESSING, OrderStatusEnum.CANCELLED],
+      [OrderStatusEnum.PROCESSING]: [OrderStatusEnum.SHIPPED, OrderStatusEnum.CANCELLED],
       [OrderStatusEnum.SHIPPED]: [OrderStatusEnum.DELIVERED],
       [OrderStatusEnum.DELIVERED]: [],
       [OrderStatusEnum.CANCELLED]: [],

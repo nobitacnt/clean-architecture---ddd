@@ -1,7 +1,8 @@
 import { AggregateRoot } from '@/shared/domain/events/aggregate-root';
+
 import { CustomerEntity } from '../entities/customer.entity';
-import { CustomerId } from '../value-objects/customer-id.vo';
 import { CustomerCreatedEvent } from '../events/customer-created.event';
+import { CustomerId } from '../value-objects/customer-id.vo';
 
 export class CustomerAggregate extends AggregateRoot {
   private customer: CustomerEntity;

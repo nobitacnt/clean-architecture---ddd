@@ -32,14 +32,8 @@ export class OrderEntity {
   /**
    * Create a new order
    */
-  static create(
-    customerId: string,
-    items: OrderItem[]
-  ): OrderEntity {
-    const totalAmount = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+  static create(customerId: string, items: OrderItem[]): OrderEntity {
+    const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return new OrderEntity({
       id: OrderId.create(),

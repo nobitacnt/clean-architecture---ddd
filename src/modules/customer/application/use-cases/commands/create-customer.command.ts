@@ -1,17 +1,19 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
+
 import { CUSTOMER_TYPES } from '@/modules/customer/customer.const';
-import { ICustomerWriteRepository } from '../../ports/repositories/customer-write.repository';
-import { ICustomerReadRepository } from '../../ports/repositories/customer-read.repository';
 import { CustomerAggregate } from '@/modules/customer/domain/aggregates/customer.aggregate';
-import { CustomerAlreadyExistsError } from '../../errors/customer.application-error';
+import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { TYPES } from '@/shared/common/di/types';
+
 import {
   CreateCustomerRequestDto,
   CreateCustomerRequestSchema,
 } from '../../dtos/create-customer.request.dto';
 import { CreateCustomerResponseDto } from '../../dtos/customer.response.dto';
+import { CustomerAlreadyExistsError } from '../../errors/customer.application-error';
 import { CustomerMapper } from '../../mappers/customer.mapper';
-import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { ICustomerReadRepository } from '../../ports/repositories/customer-read.repository';
+import { ICustomerWriteRepository } from '../../ports/repositories/customer-write.repository';
 
 @injectable()
 export class CreateCustomerCommand {

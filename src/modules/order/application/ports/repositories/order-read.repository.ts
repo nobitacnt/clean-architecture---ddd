@@ -5,7 +5,6 @@ import { OrderAggregate } from '@/modules/order/domain/aggregates/order.aggregat
  * This is a port in the hexagonal architecture
  */
 export interface IOrderReadRepository {
-
   /**
    * Find an order by ID
    */

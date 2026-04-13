@@ -1,4 +1,5 @@
 import { DomainEvent } from '@/shared/domain/events/domain-event';
+
 import { ORDER_EVENTS } from './event.const';
 
 /**

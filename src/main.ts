@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { createServer } from './server';
 import dotenv from 'dotenv';
+
+import { createServer } from './server';
 
 // Load environment variables
 dotenv.config();
@@ -23,7 +24,6 @@ async function main() {
 
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
-
   } catch (error) {
     console.error('Failed to start application:', error);
     process.exit(1);

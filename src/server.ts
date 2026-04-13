@@ -1,19 +1,20 @@
 import 'reflect-metadata';
-import express, { Application } from 'express';
-import { buildSchema } from 'type-graphql';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import { Container } from 'inversify';
-import { container } from '@/shared/common/di/container';
-import { loadSharedModules } from '@/shared/shared.module';
-import { loadOrderModule } from '@/modules/order/order.module';
+import { buildSchema } from 'type-graphql';
+
 import { loadCustomerModule } from '@/modules/customer/customer.module';
-import { createOrderRoutes } from '@/modules/order/presentation/http/routes/order.routes';
 import { createCustomerRoutes } from '@/modules/customer/presentation/http/routes/customer.routes';
+import { loadOrderModule } from '@/modules/order/order.module';
 import { OrderResolver } from '@/modules/order/presentation/graphql/resolvers/order.resolver';
+import { createOrderRoutes } from '@/modules/order/presentation/http/routes/order.routes';
 import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { container } from '@/shared/common/di/container';
 import { TYPES } from '@/shared/common/di/types';
+import { loadSharedModules } from '@/shared/shared.module';
 
 /**
  * Server setup and initialization
@@ -38,7 +39,7 @@ export class Server {
     this.app.use(express.urlencoded({ extended: true }));
 
     // Health check endpoint
-    this.app.get('/health', (req, res) => {
+    this.app.get('/health', (_req: Request, res: Response) => {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
@@ -48,13 +49,15 @@ export class Server {
     // Setup GraphQL
     await this.setupGraphQL();
 
-    // Error handling middleware
-    this.app.use((err: any, req: any, res: any, next: any) => {
-      this.logger.error('Unhandled error', err);
-      res.status(err.statusCode || 500).json({
-        error: err.message || 'Internal server error',
-      });
-    });
+    // Error handling middleware — phải có đủ 4 tham số để Express nhận diện là error handler
+    this.app.use(
+      (err: Error & { statusCode?: number }, _req: Request, res: Response, _next: NextFunction) => {
+        this.logger.error('Unhandled error', err);
+        res.status(err.statusCode || 500).json({
+          error: err.message || 'Internal server error',
+        });
+      }
+    );
   }
 
   /**
@@ -96,12 +99,7 @@ export class Server {
       await this.apolloServer.start();
 
       // Apply Apollo middleware
-      this.app.use(
-        '/graphql',
-        cors(),
-        express.json(),
-        expressMiddleware(this.apolloServer)
-      );
+      this.app.use('/graphql', cors(), express.json(), expressMiddleware(this.apolloServer));
 
       this.logger.info('GraphQL server configured');
     } catch (error) {

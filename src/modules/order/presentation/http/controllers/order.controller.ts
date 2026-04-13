@@ -1,12 +1,13 @@
-import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
-import { TYPES } from '@/shared/common/di/types';
+import { injectable, inject } from 'inversify';
+
+import { ChangeOrderStatusCommand } from '@/modules/order/application/use-cases/commands/change-order-status.command';
 import { CreateOrderCommand } from '@/modules/order/application/use-cases/commands/create-order.command';
 import { GetOrderQuery } from '@/modules/order/application/use-cases/queries/get-order.query';
-import { ChangeOrderStatusCommand } from '@/modules/order/application/use-cases/commands/change-order-status.command';
-import { BaseController } from '@/shared/presentation/http/controllers/base.controller';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 import { ORDER_TYPES } from '@/modules/order/order.const';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+import { BaseController } from '@/shared/presentation/http/controllers/base.controller';
 
 /**
  * Controller for Order HTTP endpoints
@@ -16,7 +17,8 @@ export class OrderController extends BaseController {
   constructor(
     @inject(ORDER_TYPES.CreateOrderCommand) private readonly createOrderUseCase: CreateOrderCommand,
     @inject(ORDER_TYPES.GetOrderQuery) private readonly getOrderUseCase: GetOrderQuery,
-    @inject(ORDER_TYPES.ChangeOrderStatusCommand) private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
+    @inject(ORDER_TYPES.ChangeOrderStatusCommand)
+    private readonly changeOrderStatusUseCase: ChangeOrderStatusCommand,
     @inject(TYPES.Logger) logger: ILogger
   ) {
     super(logger);

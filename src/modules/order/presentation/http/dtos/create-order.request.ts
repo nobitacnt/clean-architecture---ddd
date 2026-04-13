@@ -1,5 +1,5 @@
-import { IsString, IsArray, IsNumber, ValidateNested, Min, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsString, IsArray, IsNumber, ValidateNested, Min, IsNotEmpty } from 'class-validator';
 
 /**
  * DTO for order item in create order request

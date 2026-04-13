@@ -25,8 +25,8 @@ describe('OrderPlacementDomainService', () => {
       const result = service.canPlaceOrder(
         order,
         100000, // credit limit
-        20000,  // pending orders
-        true    // verified
+        20000, // pending orders
+        true // verified
       );
 
       expect(result.allowed).toBe(true);
@@ -38,7 +38,7 @@ describe('OrderPlacementDomainService', () => {
       const result = service.canPlaceOrder(
         order,
         100000, // credit limit
-        60000,  // pending orders (60k + 50k = 110k > 100k)
+        60000, // pending orders (60k + 50k = 110k > 100k)
         true
       );
 
@@ -61,12 +61,7 @@ describe('OrderPlacementDomainService', () => {
 
     it('should allow small orders from unverified customers', () => {
       const order = createTestOrder(5000);
-      const result = service.canPlaceOrder(
-        order,
-        100000,
-        0,
-        false
-      );
+      const result = service.canPlaceOrder(order, 100000, 0, false);
 
       expect(result.allowed).toBe(true);
     });
@@ -76,7 +71,7 @@ describe('OrderPlacementDomainService', () => {
       const result = service.canPlaceOrder(
         order,
         100000, // credit limit
-        75000,  // pending (75k + 20k = 95k = 95% utilization)
+        75000, // pending (75k + 20k = 95k = 95% utilization)
         true
       );
 
@@ -88,9 +83,9 @@ describe('OrderPlacementDomainService', () => {
   describe('calculateRequiredDeposit', () => {
     it('should calculate deposit for low-risk existing customer', () => {
       const deposit = service.calculateRequiredDeposit(
-        10000,  // order amount
-        'LOW',  // risk level
-        10      // total orders (existing customer)
+        10000, // order amount
+        'LOW', // risk level
+        10 // total orders (existing customer)
       );
 
       expect(deposit).toBe(1000); // 10% of 10000
@@ -107,18 +102,14 @@ describe('OrderPlacementDomainService', () => {
     });
 
     it('should calculate deposit for high-risk customer', () => {
-      const deposit = service.calculateRequiredDeposit(
-        10000,
-        'HIGH',
-        10
-      );
+      const deposit = service.calculateRequiredDeposit(10000, 'HIGH', 10);
 
       expect(deposit).toBe(5000); // 50% of 10000
     });
 
     it('should enforce minimum deposit of $100', () => {
       const deposit = service.calculateRequiredDeposit(
-        100,   // small order
+        100, // small order
         'LOW',
         10
       );
@@ -127,11 +118,7 @@ describe('OrderPlacementDomainService', () => {
     });
 
     it('should calculate deposit for medium-risk new customer', () => {
-      const deposit = service.calculateRequiredDeposit(
-        10000,
-        'MEDIUM',
-        2
-      );
+      const deposit = service.calculateRequiredDeposit(10000, 'MEDIUM', 2);
 
       expect(deposit).toBe(4000); // 40% of 10000
     });
@@ -140,7 +127,7 @@ describe('OrderPlacementDomainService', () => {
   describe('requiresManualApproval', () => {
     it('should require approval for large orders', () => {
       const requiresApproval = service.requiresManualApproval(
-        60000,  // large order
+        60000, // large order
         10,
         true,
         100,
@@ -153,7 +140,7 @@ describe('OrderPlacementDomainService', () => {
     it('should require approval for bulk orders', () => {
       const requiresApproval = service.requiresManualApproval(
         10000,
-        150,  // bulk order (> 100 items)
+        150, // bulk order (> 100 items)
         true,
         100,
         5
@@ -167,7 +154,7 @@ describe('OrderPlacementDomainService', () => {
         5000,
         10,
         false, // unverified
-        15,    // new account (< 30 days)
+        15, // new account (< 30 days)
         0
       );
 
@@ -176,11 +163,11 @@ describe('OrderPlacementDomainService', () => {
 
     it('should require approval for first large order', () => {
       const requiresApproval = service.requiresManualApproval(
-        6000,  // > $5000
+        6000, // > $5000
         10,
         true,
         100,
-        0      // first order
+        0 // first order
       );
 
       expect(requiresApproval).toBe(true);
@@ -188,11 +175,11 @@ describe('OrderPlacementDomainService', () => {
 
     it('should not require approval for normal orders', () => {
       const requiresApproval = service.requiresManualApproval(
-        3000,  // normal amount
-        10,    // normal quantity
-        true,  // verified
-        100,   // established account
-        5      // existing customer
+        3000, // normal amount
+        10, // normal quantity
+        true, // verified
+        100, // established account
+        5 // existing customer
       );
 
       expect(requiresApproval).toBe(false);

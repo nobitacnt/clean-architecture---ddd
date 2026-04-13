@@ -1,11 +1,13 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
+
 import { ICustomerReadRepository } from '@/modules/customer/application/ports/repositories/customer-read.repository';
 import { CustomerAggregate } from '@/modules/customer/domain/aggregates/customer.aggregate';
 import { CustomerEntity } from '@/modules/customer/domain/entities/customer.entity';
 import { CustomerId } from '@/modules/customer/domain/value-objects/customer-id.vo';
 import { DatabaseRole } from '@/shared/common/const';
+import { TYPES } from '@/shared/common/di/types';
 import { PrismaClientManager } from '@/shared/infrastructure/database/prisma-client-manager';
+
 import { CustomerModel } from '../models/customer.model';
 
 @injectable()

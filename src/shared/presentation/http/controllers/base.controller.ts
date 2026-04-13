@@ -1,6 +1,7 @@
-import { ZodError } from 'zod';
-import { injectable } from 'inversify';
 import { Response } from 'express';
+import { injectable } from 'inversify';
+import { ZodError } from 'zod';
+
 import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 
 @injectable()
@@ -16,7 +17,7 @@ export abstract class BaseController {
     if (error instanceof ZodError) {
       res.status(400).json({
         error: 'Validation failed',
-        details: error.errors.map(e => ({
+        details: error.errors.map((e) => ({
           path: e.path.join('.'),
           message: e.message,
         })),

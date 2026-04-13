@@ -1,5 +1,7 @@
 import { DomainEvent } from '@/shared/domain/events/domain-event';
+
 import { OrderItem } from '../entities/order.entity';
+
 import { ORDER_EVENTS } from './event.const';
 
 /**

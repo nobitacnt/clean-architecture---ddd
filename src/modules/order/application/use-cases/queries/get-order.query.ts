@@ -1,6 +1,9 @@
 import { injectable, inject } from 'inversify';
+
+import { ORDER_TYPES } from '@/modules/order/order.const';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 import { TYPES } from '@/shared/common/di/types';
-import { OrderNotFoundError } from '../../errors/order.application-error';
+
 import {
   GetOrderRequestDto,
   GetOrderRequestSchema,
@@ -8,9 +11,8 @@ import {
   GetOrdersListRequestSchema,
 } from '../../dtos/get-order.request.dto';
 import { OrderResponseDto, OrdersListResponseDto } from '../../dtos/order.response.dto';
+import { OrderNotFoundError } from '../../errors/order.application-error';
 import { OrderMapper } from '../../mappers/order.mapper';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
-import { ORDER_TYPES } from '@/modules/order/order.const';
 import { IOrderReadRepository } from '../../ports/repositories/order-read.repository';
 
 /**
@@ -20,7 +22,8 @@ import { IOrderReadRepository } from '../../ports/repositories/order-read.reposi
 @injectable()
 export class GetOrderQuery {
   constructor(
-    @inject(ORDER_TYPES.OrderReadRepository) private readonly orderReadRepository: IOrderReadRepository,
+    @inject(ORDER_TYPES.OrderReadRepository)
+    private readonly orderReadRepository: IOrderReadRepository,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
 

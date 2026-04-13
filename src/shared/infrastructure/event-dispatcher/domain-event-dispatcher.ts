@@ -1,9 +1,10 @@
 import { injectable, inject } from 'inversify';
-import { AggregateRoot } from '@/shared/domain/events/aggregate-root';
-import { TYPES } from '@/shared/common/di/types';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+
 import { IEventBus } from '@/shared/application/ports/event-bus/event-bus.interface';
 import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+import { AggregateRoot } from '@/shared/domain/events/aggregate-root';
 
 /**
  * Dispatcher for domain events from aggregate roots
@@ -20,12 +21,14 @@ export class DomainEventDispatcher implements IEventDispatcher {
    */
   async dispatchEventsForAggregate(aggregate: AggregateRoot): Promise<void> {
     const events = aggregate.getDomainEvents();
-    
+
     if (events.length === 0) {
       return;
     }
 
-    this.logger.info(`Dispatching ${events.length} domain events for aggregate: ${aggregate.getId()}`);
+    this.logger.info(
+      `Dispatching ${events.length} domain events for aggregate: ${aggregate.getId()}`
+    );
 
     for (const event of events) {
       await this.eventBus.publish(event);

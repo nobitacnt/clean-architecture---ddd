@@ -1,10 +1,10 @@
-import { IDBClientManager } from "@/shared/application/ports/database/db-client-manager.interface";
-import { ILogger } from "@/shared/application/ports/logger/logger.interface";
-import { DatabaseRole } from "@/shared/common/const";
-import { TYPES } from "@/shared/common/di/types";
-import { PrismaClient } from "@prisma/client";
-import { inject, injectable } from "inversify";
+import { PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
 
+import { IDBClientManager } from '@/shared/application/ports/database/db-client-manager.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { DatabaseRole } from '@/shared/common/const';
+import { TYPES } from '@/shared/common/di/types';
 
 @injectable()
 export class PrismaClientManager implements IDBClientManager {
@@ -13,13 +13,13 @@ export class PrismaClientManager implements IDBClientManager {
 
   constructor(
     @inject(TYPES.Logger)
-    private readonly logger: ILogger,
+    private readonly logger: ILogger
   ) {}
 
   /**
    * get Prisma client for the given role
-   * @param role 
-   * @returns 
+   * @param role
+   * @returns
    */
   async getClient(role: DatabaseRole): Promise<PrismaClient> {
     const existing = this.clients.get(role);

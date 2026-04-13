@@ -1,7 +1,8 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+
 import { CustomerCreatedEvent } from '@/modules/customer/domain/events/customer-created.event';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
 
 @injectable()
 export class CustomerCreatedEventHandler {

@@ -1,5 +1,5 @@
-import { Field, InputType } from 'type-graphql';
 import { IsString, IsEnum } from 'class-validator';
+import { Field, InputType } from 'type-graphql';
 
 /**
  * GraphQL input type for changing order status

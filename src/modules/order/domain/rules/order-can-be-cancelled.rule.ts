@@ -28,14 +28,10 @@ export class OrderCanBeCancelledRule {
   static checkOrThrow(order: OrderAggregate): void {
     if (!this.isSatisfiedBy(order)) {
       if (order.status.isDelivered()) {
-        throw new OrderCannotBeCancelledException(
-          'Order has already been delivered'
-        );
+        throw new OrderCannotBeCancelledException('Order has already been delivered');
       }
       if (order.status.isCancelled()) {
-        throw new OrderCannotBeCancelledException(
-          'Order is already cancelled'
-        );
+        throw new OrderCannotBeCancelledException('Order is already cancelled');
       }
       throw new OrderCannotBeCancelledException('Unknown reason');
     }

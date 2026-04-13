@@ -1,7 +1,6 @@
 import { AggregateRoot } from '@/shared/domain/events/aggregate-root';
+
 import { OrderEntity, OrderItem } from '../entities/order.entity';
-import { OrderId } from '../value-objects/order-id.vo';
-import { OrderStatus } from '../value-objects/order-status.vo';
 import { OrderCreatedEvent } from '../events/order-created.event';
 import { OrderStatusChangedEvent } from '../events/order-status-changed.event';
 import {
@@ -9,6 +8,8 @@ import {
   OrderAlreadyCancelledException,
 } from '../exceptions/order.domain-exception';
 import { OrderCanBeCancelledRule } from '../rules/order-can-be-cancelled.rule';
+import { OrderId } from '../value-objects/order-id.vo';
+import { OrderStatus } from '../value-objects/order-status.vo';
 
 /**
  * Order Aggregate Root
@@ -31,12 +32,7 @@ export class OrderAggregate extends AggregateRoot {
 
     // Raise domain event
     aggregate.addDomainEvent(
-      new OrderCreatedEvent(
-        order.id.toString(),
-        order.customerId,
-        order.items,
-        order.totalAmount
-      )
+      new OrderCreatedEvent(order.id.toString(), order.customerId, order.items, order.totalAmount)
     );
 
     return aggregate;
@@ -92,7 +88,7 @@ export class OrderAggregate extends AggregateRoot {
   cancel(): void {
     // Apply business rule: check if order can be cancelled
     OrderCanBeCancelledRule.checkOrThrow(this);
-    
+
     const cancelledStatus = OrderStatus.fromString('CANCELLED');
     this.changeStatus(cancelledStatus);
   }

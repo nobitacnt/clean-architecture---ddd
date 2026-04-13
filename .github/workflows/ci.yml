@@ -1,0 +1,183 @@
+name: CI
+
+on:
+  push:
+    branches-ignore: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ─── Step 1: Quality checks (lint + format) ─────────────────────────────────
+  quality:
+    name: Quality (Lint & Format)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint:ci
+
+      - name: Format
+        if: success() || failure()
+        run: npm run format:ci
+
+  # ─── Step 2: Test + coverage (runs after quality passes) ────────────────────
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - run: npx prisma generate
+
+      - name: Run tests with coverage
+        run: npm run test:ci
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # ─── Step 3: SonarQube analysis (runs after test passes) ────────────────────
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_KEY: ${{ secrets.SONAR_KEY }}
+          SONAR_PROJECT_NAME: ${{ secrets.SONAR_PROJECT_NAME }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_ORG: ${{ secrets.SONAR_ORG }}
+
+  # ─── Step 4: Build & push Docker image to Docker Hub ───────────────────────
+  # Runs only on workflow_dispatch (manual) — skipped on PRs.
+  # After PR merges, trigger manually or set up a separate CD workflow.
+  docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: sonarqube
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─── Gate: all jobs must succeed — skipped = fail ───────────────────────────
+  # Branch protection should require ONLY this job.
+  ci-passed:
+    name: CI Passed
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    needs: [quality, test, sonarqube, docker]
+    steps:
+      - name: Verify all jobs succeeded
+        run: |
+          # Jobs that MUST succeed (skipped = fail)
+          must_pass=(
+            "quality:${{ needs.quality.result }}"
+            "test:${{ needs.test.result }}"
+            "sonarqube:${{ needs.sonarqube.result }}"
+          )
+          # Jobs that may be skipped (e.g. docker skips on PRs)
+          may_skip=(
+            "docker:${{ needs.docker.result }}"
+          )
+
+          failed=0
+          for entry in "${must_pass[@]}"; do
+            job="${entry%%:*}"
+            result="${entry##*:}"
+            echo "$job → $result"
+            if [[ "$result" != "success" ]]; then
+              failed=1
+            fi
+          done
+          for entry in "${may_skip[@]}"; do
+            job="${entry%%:*}"
+            result="${entry##*:}"
+            echo "$job → $result"
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              failed=1
+            fi
+          done
+
+          if [[ $failed -eq 1 ]]; then
+            echo ""
+            echo "::error::One or more CI jobs did not pass. Merge is blocked."
+            exit 1
+          fi

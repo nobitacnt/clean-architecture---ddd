@@ -1,8 +1,9 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
+
 import { ICustomerWriteRepository } from '@/modules/customer/application/ports/repositories/customer-write.repository';
 import { CustomerAggregate } from '@/modules/customer/domain/aggregates/customer.aggregate';
 import { DatabaseRole } from '@/shared/common/const';
+import { TYPES } from '@/shared/common/di/types';
 import { PrismaClientManager } from '@/shared/infrastructure/database/prisma-client-manager';
 
 @injectable()

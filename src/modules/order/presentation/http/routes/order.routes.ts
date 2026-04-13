@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { Container } from 'inversify';
-import { OrderController } from '../controllers/order.controller';
+
 import { ORDER_TYPES } from '@/modules/order/order.const';
+
+import { OrderController } from '../controllers/order.controller';
 
 /**
  * Setup order routes

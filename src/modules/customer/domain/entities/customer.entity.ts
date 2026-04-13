@@ -29,15 +29,7 @@ export class CustomerEntity {
 
   static create(email: string, name: string, creditLimit: number = 100000): CustomerEntity {
     const now = new Date();
-    return new CustomerEntity(
-      CustomerId.create(),
-      email,
-      name,
-      creditLimit,
-      false,
-      now,
-      now
-    );
+    return new CustomerEntity(CustomerId.create(), email, name, creditLimit, false, now, now);
   }
 
   static reconstitute(

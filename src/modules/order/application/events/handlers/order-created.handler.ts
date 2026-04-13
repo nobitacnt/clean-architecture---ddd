@@ -1,8 +1,8 @@
+import { inject, injectable } from 'inversify';
 
 import { OrderCreatedEvent } from '@/modules/order/domain/events/order-created.event';
 import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 import { TYPES } from '@/shared/common/di/types';
-import { inject, injectable } from 'inversify';
 
 /**
  * Event handler for OrderCreatedEvent
@@ -11,7 +11,7 @@ import { inject, injectable } from 'inversify';
  */
 @injectable()
 export class OrderCreatedEventHandler {
-  @inject(TYPES.Logger) private readonly logger: ILogger
+  @inject(TYPES.Logger) private readonly logger: ILogger;
 
   /**
    * Handle the OrderCreated event

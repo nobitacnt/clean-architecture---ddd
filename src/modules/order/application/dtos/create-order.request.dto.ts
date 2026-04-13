@@ -15,9 +15,7 @@ export const OrderItemRequestSchema = z.object({
  */
 export const CreateOrderRequestSchema = z.object({
   customerId: z.string().min(1, 'Customer ID is required'),
-  items: z
-    .array(OrderItemRequestSchema)
-    .min(1, 'At least one item is required'),
+  items: z.array(OrderItemRequestSchema).min(1, 'At least one item is required'),
 });
 
 /**

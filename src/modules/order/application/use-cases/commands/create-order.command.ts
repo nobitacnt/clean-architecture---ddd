@@ -1,17 +1,19 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
-import { IOrderWriteRepository } from '../../ports/repositories/order-write.repository';
+
 import { OrderAggregate } from '@/modules/order/domain/aggregates/order.aggregate';
-import { OrderCreationFailedError } from '../../errors/order.application-error';
+import { ORDER_TYPES } from '@/modules/order/order.const';
+import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+
 import {
   CreateOrderRequestDto,
   CreateOrderRequestSchema,
 } from '../../dtos/create-order.request.dto';
 import { CreateOrderResponseDto } from '../../dtos/order.response.dto';
+import { OrderCreationFailedError } from '../../errors/order.application-error';
 import { OrderMapper } from '../../mappers/order.mapper';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
-import { ORDER_TYPES } from '@/modules/order/order.const';
-import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { IOrderWriteRepository } from '../../ports/repositories/order-write.repository';
 
 /**
  * Command: Create Order
@@ -20,7 +22,8 @@ import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/ev
 @injectable()
 export class CreateOrderCommand {
   constructor(
-    @inject(ORDER_TYPES.OrderWriteRepository) private readonly orderWriteRepository: IOrderWriteRepository,
+    @inject(ORDER_TYPES.OrderWriteRepository)
+    private readonly orderWriteRepository: IOrderWriteRepository,
     @inject(TYPES.DomainEventsDispatcher) private readonly dispatcher: IEventDispatcher,
     @inject(TYPES.Logger) private readonly logger: ILogger
   ) {}
@@ -53,9 +56,7 @@ export class CreateOrderCommand {
       return OrderMapper.toCreateOrderResponse(orderAggregate);
     } catch (error) {
       this.logger.error('Failed to create order', error);
-      throw new OrderCreationFailedError(
-        error instanceof Error ? error.message : 'Unknown error'
-      );
+      throw new OrderCreationFailedError(error instanceof Error ? error.message : 'Unknown error');
     }
   }
 }

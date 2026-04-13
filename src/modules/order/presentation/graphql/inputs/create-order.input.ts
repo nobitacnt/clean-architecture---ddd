@@ -1,5 +1,5 @@
-import { Field, InputType, Int, Float } from 'type-graphql';
 import { IsString, IsNumber, Min, IsNotEmpty } from 'class-validator';
+import { Field, InputType, Int, Float } from 'type-graphql';
 
 /**
  * GraphQL input type for order item

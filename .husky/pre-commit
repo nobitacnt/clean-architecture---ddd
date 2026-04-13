@@ -1,0 +1,4 @@
+npx concurrently --kill-others-on-fail \
+  "npm run typecheck" \
+  "npm run lint:ci" \
+  "npm run format:ci"

@@ -1,16 +1,18 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
+
 import { OrderStatus } from '@/modules/order/domain/value-objects/order-status.vo';
-import { OrderNotFoundError } from '../../errors/order.application-error';
-import { OrderMapper } from '../../mappers/order.mapper';
+import { ORDER_TYPES } from '@/modules/order/order.const';
+import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+
 import {
   ChangeOrderStatusRequestDto,
   ChangeOrderStatusRequestSchema,
 } from '../../dtos/change-order-status.request.dto';
 import { ChangeOrderStatusResponseDto } from '../../dtos/order.response.dto';
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
-import { ORDER_TYPES } from '@/modules/order/order.const';
-import { IEventDispatcher } from '@/shared/application/ports/event-dispatcher/event-dispatcher.interface';
+import { OrderNotFoundError } from '../../errors/order.application-error';
+import { OrderMapper } from '../../mappers/order.mapper';
 import { IOrderReadRepository } from '../../ports/repositories/order-read.repository';
 import { IOrderWriteRepository } from '../../ports/repositories/order-write.repository';
 
@@ -21,8 +23,10 @@ import { IOrderWriteRepository } from '../../ports/repositories/order-write.repo
 @injectable()
 export class ChangeOrderStatusCommand {
   constructor(
-    @inject(ORDER_TYPES.OrderReadRepository) private readonly orderReadRepository: IOrderReadRepository,
-    @inject(ORDER_TYPES.OrderWriteRepository) private readonly orderWriteRepository: IOrderWriteRepository,
+    @inject(ORDER_TYPES.OrderReadRepository)
+    private readonly orderReadRepository: IOrderReadRepository,
+    @inject(ORDER_TYPES.OrderWriteRepository)
+    private readonly orderWriteRepository: IOrderWriteRepository,
     @inject(ORDER_TYPES.OrderMapper) private readonly orderMapper: OrderMapper,
     @inject(TYPES.DomainEventsDispatcher) private readonly dispatcher: IEventDispatcher,
     @inject(TYPES.Logger) private readonly logger: ILogger

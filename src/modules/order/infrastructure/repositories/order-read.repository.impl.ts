@@ -1,13 +1,15 @@
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/shared/common/di/types';
+
 import { OrderAggregate } from '@/modules/order/domain/aggregates/order.aggregate';
 import { OrderEntity, OrderItem } from '@/modules/order/domain/entities/order.entity';
 import { OrderId } from '@/modules/order/domain/value-objects/order-id.vo';
 import { OrderStatus } from '@/modules/order/domain/value-objects/order-status.vo';
-import { OrderModel, OrderItemModel } from '../models/order.model';
-import { IOrderReadRepository } from '../../application/ports/repositories/order-read.repository';
-import { PrismaClientManager } from '@/shared/infrastructure/database/prisma-client-manager';
 import { DatabaseRole } from '@/shared/common/const';
+import { TYPES } from '@/shared/common/di/types';
+import { PrismaClientManager } from '@/shared/infrastructure/database/prisma-client-manager';
+
+import { IOrderReadRepository } from '../../application/ports/repositories/order-read.repository';
+import { OrderModel, OrderItemModel } from '../models/order.model';
 
 /**
  * Prisma implementation of Order Repository
@@ -16,8 +18,7 @@ import { DatabaseRole } from '@/shared/common/const';
 export class OrderReadRepositoryImpl implements IOrderReadRepository {
   constructor(
     @inject(TYPES.DBClientManager) private readonly dbClientManager: PrismaClientManager
-  ) {
-  }
+  ) {}
 
   /**
    * get read-only database client
@@ -29,8 +30,8 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
 
   /**
    * find an order by ID
-   * @param orderId 
-   * @returns 
+   * @param orderId
+   * @returns
    */
   async findById(orderId: string): Promise<OrderAggregate | null> {
     const dbClient = await this.getDbClient();
@@ -48,9 +49,9 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
 
   /**
    * find all orders with pagination
-   * @param page 
-   * @param limit 
-   * @returns 
+   * @param page
+   * @param limit
+   * @returns
    */
   async findAll(page: number = 1, limit: number = 10): Promise<OrderAggregate[]> {
     const dbClient = await this.getDbClient();
@@ -68,8 +69,8 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
 
   /**
    * find orders by customer ID
-   * @param customerId 
-   * @returns 
+   * @param customerId
+   * @returns
    */
   async findByCustomerId(customerId: string): Promise<OrderAggregate[]> {
     const dbClient = await this.getDbClient();
@@ -81,7 +82,6 @@ export class OrderReadRepositoryImpl implements IOrderReadRepository {
 
     return orders.map((order: OrderModel) => this.toDomain(order));
   }
-
 
   /**
    * Convert from Prisma model to domain aggregate

@@ -1,6 +1,7 @@
-import { ILogger } from '@/shared/application/ports/logger/logger.interface';
-import { OrderStatusChangedEvent } from '@/modules/order/domain/events/order-status-changed.event';
 import { inject, injectable } from 'inversify';
+
+import { OrderStatusChangedEvent } from '@/modules/order/domain/events/order-status-changed.event';
+import { ILogger } from '@/shared/application/ports/logger/logger.interface';
 import { TYPES } from '@/shared/common/di/types';
 
 /**

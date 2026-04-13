@@ -1,6 +1,7 @@
-import { ITransactionClient } from "@/shared/application/ports/database/transaction-client.interface";
-import { PrismaClient } from "@prisma/client";
-import { injectable } from "inversify";
+import { PrismaClient } from '@prisma/client';
+import { injectable } from 'inversify';
+
+import { ITransactionClient } from '@/shared/application/ports/database/transaction-client.interface';
 
 @injectable()
 export class PrismaTransaction implements ITransactionClient {

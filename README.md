@@ -1,87 +1,162 @@
-# Clean Architecture + DDD Order Management System
+# Clean Architecture + DDD — Order Management System
 
-Dự án Order Management được xây dựng với **Clean Architecture** kết hợp **Domain-Driven Design (DDD)**, sử dụng Node.js, TypeScript, và Inversify cho Dependency Injection.
+An Order Management System built with **Clean Architecture** and **Domain-Driven Design (DDD)** using Node.js, TypeScript, and Inversify for Dependency Injection.
 
-## Kiến trúc
+---
 
-### Các Layer
+## Table of Contents
 
-1. **Domain Layer** - Lõi nghiệp vụ
-   - Entities: Order Entity
-   - Aggregates: Order Aggregate Root
-   - Value Objects: OrderId, OrderStatus
-   - Domain Events: OrderCreated, OrderStatusChanged
-   - Domain Services: OrderDomainService
-   - Business Rules: OrderCanBeCancelledRule
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+- [Request Flow](#request-flow)
+- [Testing](#testing)
+- [Scripts](#scripts)
+- [Business Rules](#business-rules)
+- [License](#license)
 
-2. **Application Layer** - Use Cases
-   - Commands: CreateOrder (CQRS Write)
-   - Queries: GetOrder (CQRS Read)
-   - Event Handlers: OrderCreatedEventHandler
-   - Ports: Repository Interfaces, UnitOfWork
+---
 
-3. **Infrastructure Layer** - Technical Implementation
-   - Repositories
-   - Database
-   - Event bus
-   - Logger
+## Architecture
 
-4. **Presentation Layer** - API
-   - HTTP REST API: Express Controllers & Routes
-   - GraphQL API: Type-GraphQL Resolvers
-   - DTOs & Presenters
+### Layers
 
-### Patterns được áp dụng
+| Layer              | Responsibility                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| **Domain**         | Core business logic — entities, aggregates, value objects, domain events, domain services, and business rules |
+| **Application**    | Orchestrates use cases (CQRS commands/queries), event handlers, and ports (interfaces)                        |
+| **Infrastructure** | Technical implementations — database repositories, event bus, logger                                          |
+| **Presentation**   | Exposes the system — REST controllers/routes and GraphQL resolvers                                            |
 
-- **Clean Architecture** - Phân tách rõ ràng các layer
-- **Domain-Driven Design** - Aggregate Root, Value Objects, Domain Events
-- **CQRS** - Tách biệt Command và Query
-- **Event-Driven Architecture** - Domain Events với Event Bus
-- **Dependency Injection** - Inversify Container
-- **Repository Pattern** - Trừu tượng hóa data access
-- **Unit of Work** - Quản lý transactions
+### Domain Layer
 
-##  Cài đặt
+- **Entities**: `OrderEntity`
+- **Aggregates**: `OrderAggregate` (Aggregate Root)
+- **Value Objects**: `OrderId`, `OrderStatus`
+- **Domain Events**: `OrderCreatedEvent`, `OrderStatusChangedEvent`
+- **Domain Services**: `OrderPlacementDomainService`
+- **Business Rules**: `OrderCanBeCancelledRule`
 
-### Yêu cầu
+### Application Layer
+
+- **Commands**: `PlaceOrderCommand`, `ChangeOrderStatusCommand` (CQRS Write)
+- **Queries**: `GetOrderQuery`, `GetOrdersQuery` (CQRS Read)
+- **Event Handlers**: `OrderCreatedEventHandler`
+- **Ports**: Repository interfaces, `IUnitOfWork`, `IEventDispatcher`
+
+### Infrastructure Layer
+
+- **Repositories**: Prisma-based read/write repository implementations
+- **Database**: `PrismaClientManager`, transaction support
+- **Event Bus**: In-memory event bus
+- **Logger**: `SimpleLogger`
+
+### Presentation Layer
+
+- **REST API**: Express controllers and routes
+- **GraphQL API**: Type-GraphQL resolvers
+- **DTOs & Mappers**: Request/response transformation
+
+### Design Patterns
+
+- **Clean Architecture** — strict layer separation with dependency inversion
+- **Domain-Driven Design** — Aggregate Root, Value Objects, Domain Events
+- **CQRS** — separate read and write models
+- **Event-Driven Architecture** — Domain Events dispatched via Event Bus
+- **Dependency Injection** — Inversify IoC container
+- **Repository Pattern** — abstracted data access
+- **Unit of Work** — atomic transaction management
+
+---
+
+## Project Structure
+
+```
+src/
+├── main.ts                        # Entry point
+├── server.ts                      # Express + GraphQL server setup
+├── modules/
+│   ├── order/
+│   │   ├── domain/
+│   │   │   ├── aggregates/        # OrderAggregate
+│   │   │   ├── entities/          # OrderEntity
+│   │   │   ├── events/            # Domain events
+│   │   │   ├── rules/             # Business rules
+│   │   │   ├── services/          # Domain services
+│   │   │   └── value-objects/     # OrderId, OrderStatus
+│   │   ├── application/
+│   │   │   ├── use-cases/         # Commands & Queries
+│   │   │   ├── events/            # Event handlers
+│   │   │   ├── ports/             # Repository & service interfaces
+│   │   │   ├── dtos/              # Input/output DTOs
+│   │   │   └── mappers/           # Aggregate ↔ DTO mappers
+│   │   ├── infrastructure/
+│   │   │   └── repositories/      # Prisma repository implementations
+│   │   └── presentation/
+│   │       ├── http/              # REST controllers & routes
+│   │       └── graphql/           # GraphQL resolvers
+│   └── customer/                  # Customer module (same structure)
+└── shared/
+    ├── common/                    # Constants, DI tokens, errors, utilities
+    ├── domain/events/             # Base domain event
+    ├── application/ports/         # Shared interfaces (Logger, DB, EventDispatcher)
+    ├── infrastructure/            # Shared infrastructure (logger, event bus, database)
+    └── presentation/http/         # Base controller
+
+test/
+├── unit/
+│   ├── domain/                    # Domain layer unit tests
+│   └── application/               # Application layer unit tests
+└── integration/                   # Integration tests
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
 
 - Node.js >= 18.x
 - PostgreSQL >= 14.x
-- npm hoặc yarn
+- npm
 
-### Các bước cài đặt
-- Nếu muốn làm thủ công thì theo các bước sau:
+### Installation
 
 ```bash
-# 1. Clone repository
+# 1. Clone the repository
 git clone <your-repo-url>
 cd ddd
+
+# 2. Start the database
 docker-compose up -d
 
-# 2. Cài đặt dependencies
+# 3. Install dependencies
 npm install
 
-# 3. Setup database
+# 4. Configure environment variables
 cp .env.example .env
-# Chỉnh sửa DATABASE_URL trong file .env
+# Edit DATABASE_URL and other variables in .env
 
-# 4. Generate Prisma Client
+# 5. Generate Prisma Client
 npm run prisma:generate
 
-# 5. Run migrations
+# 6. Run database migrations
 npm run prisma:migrate
 
-# 6. Start development server
+# 7. Start the development server
 npm run dev
 ```
 
+The server will be available at `http://localhost:3000`.
 
+---
 
-## Sử dụng
+## API Reference
 
 ### REST API
 
-#### Tạo khách hàng
+#### Create a customer
 
 ```bash
 curl -X POST http://localhost:3000/api/customers \
@@ -93,7 +168,7 @@ curl -X POST http://localhost:3000/api/customers \
   }'
 ```
 
-#### Tạo đơn hàng
+#### Place an order
 
 ```bash
 curl -X POST http://localhost:3000/api/orders \
@@ -111,19 +186,19 @@ curl -X POST http://localhost:3000/api/orders \
   }'
 ```
 
-#### Lấy thông tin đơn hàng
+#### Get an order by ID
 
 ```bash
 curl http://localhost:3000/api/orders/{orderId}
 ```
 
-#### Lấy danh sách đơn hàng
+#### List orders
 
 ```bash
 curl "http://localhost:3000/api/orders?page=1&limit=10"
 ```
 
-#### Thay đổi trạng thái đơn hàng
+#### Change order status
 
 ```bash
 curl -X PATCH http://localhost:3000/api/orders/{orderId}/status \
@@ -133,27 +208,24 @@ curl -X PATCH http://localhost:3000/api/orders/{orderId}/status \
   }'
 ```
 
-Các trạng thái hợp lệ: `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`
+Valid statuses: `PENDING` · `CONFIRMED` · `PROCESSING` · `SHIPPED` · `DELIVERED` · `CANCELLED`
+
+---
 
 ### GraphQL API
 
-GraphQL Playground: `http://localhost:3000/graphql`
+Playground available at: `http://localhost:3000/graphql`
 
-#### Tạo đơn hàng
+#### Place an order
 
 ```graphql
 mutation {
-  createOrder(input: {
-    customerId: "customer-123"
-    items: [
-      {
-        productId: "prod-1"
-        productName: "Product 1"
-        quantity: 2
-        price: 100
-      }
-    ]
-  }) {
+  createOrder(
+    input: {
+      customerId: "customer-123"
+      items: [{ productId: "prod-1", productName: "Product 1", quantity: 2, price: 100 }]
+    }
+  ) {
     id
     customerId
     totalAmount
@@ -163,7 +235,7 @@ mutation {
 }
 ```
 
-#### Lấy thông tin đơn hàng
+#### Get an order by ID
 
 ```graphql
 query {
@@ -185,7 +257,7 @@ query {
 }
 ```
 
-#### Lấy danh sách đơn hàng
+#### List orders
 
 ```graphql
 query {
@@ -199,52 +271,60 @@ query {
 }
 ```
 
-#### Thay đổi trạng thái đơn hàng
+#### Change order status
 
 ```graphql
-mutation ChangeOrderStatus {
-    changeOrderStatus(input: { orderId: "0209ecc7-083b-4160-9aee-9dfb501a89f7", newStatus: "PROCESSING" }) {
-        id
-        previousStatus
-        newStatus
-        updatedAt
-        message
-    }
+mutation {
+  changeOrderStatus(
+    input: { orderId: "0209ecc7-083b-4160-9aee-9dfb501a89f7", newStatus: "PROCESSING" }
+  ) {
+    id
+    previousStatus
+    newStatus
+    updatedAt
+    message
+  }
 }
 ```
 
-## Luồng xử lý
+---
 
-### Tạo đơn hàng (Create Order)
+## Request Flow
 
-1. **HTTP Controller** nhận request → validate DTO
-2. **CreateOrderCommand** được tạo và gửi đến **CreateOrderHandler**
-3. **Handler** tạo **OrderAggregate** (Domain)
-4. **Aggregate** raise **OrderCreatedEvent** (Domain Event)
-5. **Repository** lưu Order vào database
-7. **OrderCreatedEventHandler** xử lý side effects (email, inventory, etc.)
-8. Response trả về client
+### Place Order
 
-### Thay đổi trạng thái đơn (Change Order Status)
+```
+HTTP Controller  →  validates DTO
+  └─▶ PlaceOrderCommand  →  PlaceOrderHandler
+        └─▶ OrderAggregate.create()        (domain)
+              ├─ raises OrderCreatedEvent
+              └─ persisted via WriteRepository
+                    └─▶ OrderCreatedEventHandler  (side effects: email, inventory…)
+```
 
-1. Load **OrderAggregate** từ Repository
-2. Gọi `aggregate.changeStatus(newStatus)`
-3. Aggregate validate business rules
-4. Nếu hợp lệ: cập nhật status và raise **OrderStatusChangedEvent**
-5. Save aggregate và dispatch events
-6. Event handlers xử lý side effects
+### Change Order Status
 
-### Lấy thông tin đơn (Get Order)
+```
+HTTP Controller  →  ChangeOrderStatusCommand  →  Handler
+  └─▶ Load OrderAggregate from ReadRepository
+        └─▶ aggregate.changeStatus(newStatus)
+              ├─ validates business rules
+              ├─ raises OrderStatusChangedEvent
+              └─ saved and events dispatched
+```
 
-1. **GetOrderQuery** được gửi đến **GetOrderHandler**
-2. Handler gọi Repository để load aggregate
-3. **OrderMapper** convert aggregate sang DTO
-4. **OrderPresenter** format dữ liệu cho presentation layer
-5. Response trả về client
+### Get Order
+
+```
+HTTP Controller  →  GetOrderQuery  →  GetOrderHandler
+  └─▶ ReadRepository.findById()
+        └─▶ OrderMapper  →  OrderDTO
+              └─▶ OrderPresenter  →  HTTP response
+```
+
+---
 
 ## Testing
-
-### Run Tests
 
 ```bash
 # Run all tests
@@ -253,10 +333,10 @@ npm test
 # Run tests in watch mode
 npm run test:watch
 
-# Run specific test file
+# Run a specific test file
 npm test -- test/unit/domain/order-status.spec.ts
 
-# Run tests with coverage
+# Run tests with coverage report
 npm test -- --coverage
 ```
 
@@ -264,55 +344,71 @@ npm test -- --coverage
 
 ```
 test/
-├── unit/                     # Unit tests
-│   ├── domain/              # Domain layer tests
-│   │   ├── order-aggregate.spec.ts
-│   │   └── order-status.spec.ts
-│   └── application/         # Application layer tests
-│       └── create-order-command.spec.ts
-└── integration/             # Integration tests
+├── unit/
+│   ├── domain/
+│   │   ├── order-aggregate.spec.ts          # Aggregate creation, status changes, cancellation
+│   │   ├── order-status.spec.ts             # Value object validation and transitions
+│   │   └── order-placement-domain-service.spec.ts
+│   └── application/
+│       └── create-order-command.spec.ts     # Use case orchestration
+└── integration/
 ```
 
-### Available Tests
-
-- **Domain Layer Tests**
-  - OrderAggregate: Tạo order, thay đổi trạng thái, cancel order
-  - OrderStatus: Value object validation và status transitions
-  
-- **Application Layer Tests**
-  - CreateOrderCommand: Use case tạo order
-  - (Có thể thêm tests cho các commands/queries khác)
+---
 
 ## Scripts
 
-- `npm run build` - Build production
-- `npm start` - Start production server
-- `npm run dev` - Start development server với hot-reload
-- `npm run prisma:generate` - Generate Prisma Client
-- `npm run prisma:migrate` - Run database migrations
-- `npm run prisma:studio` - Open Prisma Studio
-- `npm run lint` - Lint code
-- `npm run format` - Format code với Prettier
+| Script                    | Description                                                          |
+| ------------------------- | -------------------------------------------------------------------- |
+| `npm run build`           | Compile TypeScript to `dist/`                                        |
+| `npm start`               | Start the production server                                          |
+| `npm run dev`             | Start the development server with hot-reload                         |
+| `npm run prisma:generate` | Regenerate Prisma Client after schema changes                        |
+| `npm run prisma:migrate`  | Apply pending database migrations                                    |
+| `npm run prisma:studio`   | Open Prisma Studio (database GUI)                                    |
+| `npm run lint:fix`        | Auto-fix all lint errors                                             |
+| `npm run lint:ci`         | Check lint — fails on any warning or error (CI use)                  |
+| `npm run format:fix`      | Auto-format all files with Prettier                                  |
+| `npm run format:ci`       | Check formatting — fails if any file is unformatted (CI use)         |
+| `npm run lintAndFormat`   | Run lint:fix then format:fix in sequence                             |
+| `npm run typecheck`       | Run TypeScript type checking without emitting files (`tsc --noEmit`) |
+| `npm test`                | Run all tests                                                        |
+| `npm run test:coverage`   | Run tests with coverage report                                       |
+| `npm run test:ci`         | Run tests with coverage in single-thread mode (CI use)               |
+| `npm run test:watch`      | Run tests in watch mode                                              |
+| `npm run prepare`         | Set up Husky git hooks (runs automatically after `npm install`)      |
 
-##  Business Rules
+---
+
+## Business Rules
 
 ### Order Status Transitions
 
-- `PENDING` → `CONFIRMED` hoặc `CANCELLED`
-- `CONFIRMED` → `PROCESSING` hoặc `CANCELLED`
-- `PROCESSING` → `SHIPPED` hoặc `CANCELLED`
-- `SHIPPED` → `DELIVERED`
-- `DELIVERED` → (không thể chuyển)
-- `CANCELLED` → (không thể chuyển)
+```
+PENDING   ──▶  CONFIRMED  ──▶  PROCESSING  ──▶  SHIPPED  ──▶  DELIVERED
+   │               │                │
+   └──▶ CANCELLED  └──▶ CANCELLED   └──▶ CANCELLED
+```
+
+| From         | Allowed transitions       |
+| ------------ | ------------------------- |
+| `PENDING`    | `CONFIRMED`, `CANCELLED`  |
+| `CONFIRMED`  | `PROCESSING`, `CANCELLED` |
+| `PROCESSING` | `SHIPPED`, `CANCELLED`    |
+| `SHIPPED`    | `DELIVERED`               |
+| `DELIVERED`  | — (terminal state)        |
+| `CANCELLED`  | — (terminal state)        |
 
 ### Cancellation Rules
 
-- Không thể cancel đơn đã DELIVERED
-- Không thể cancel đơn đã CANCELLED
+- An order in `DELIVERED` state cannot be cancelled.
+- An order already in `CANCELLED` state cannot be cancelled again.
+
+---
 
 ## License
 
-MIT License
+MIT License — see [LICENSE](./LICENSE) for details.
 
 ## Author
 

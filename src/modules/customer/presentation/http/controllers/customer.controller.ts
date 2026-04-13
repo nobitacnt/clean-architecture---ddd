@@ -1,10 +1,11 @@
-import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
-import { TYPES } from '@/shared/common/di/types';
-import { CUSTOMER_TYPES } from '@/modules/customer/customer.const';
+import { injectable, inject } from 'inversify';
+
 import { CreateCustomerCommand } from '@/modules/customer/application/use-cases/commands/create-customer.command';
-import { BaseController } from '@/shared/presentation/http/controllers/base.controller';
+import { CUSTOMER_TYPES } from '@/modules/customer/customer.const';
 import { ILogger } from '@/shared/application/ports/logger/logger.interface';
+import { TYPES } from '@/shared/common/di/types';
+import { BaseController } from '@/shared/presentation/http/controllers/base.controller';
 
 @injectable()
 export class CustomerController extends BaseController {

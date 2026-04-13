@@ -1,4 +1,5 @@
 import { DomainEvent } from '@/shared/domain/events/domain-event';
+
 import { CUSTOMER_EVENTS } from './event.const';
 
 export class CustomerCreatedEvent extends DomainEvent {
