@@ -70,7 +70,7 @@ jobs:
           path: coverage/
           retention-days: 7
 
-  # ─── Step 3: SonarQube analysis (runs after test passes) ────────────────────
+  # ─── Step 3: SonarQube analysis (runs after unit tests pass) ─────────────────
   sonarqube:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
@@ -97,8 +97,7 @@ jobs:
           SONAR_ORG: ${{ secrets.SONAR_ORG }}
 
   # ─── Step 4: Build & push Docker image to Docker Hub ───────────────────────
-  # Runs only on workflow_dispatch (manual) — skipped on PRs.
-  # After PR merges, trigger manually or set up a separate CD workflow.
+  # Runs only on workflow_dispatch (manual) — skipped on PRs and feature pushes.
   docker:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
@@ -137,7 +136,6 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ─── Gate: all jobs must succeed — skipped = fail ───────────────────────────
-  # Branch protection should require ONLY this job.
   ci-passed:
     name: CI Passed
     if: always()

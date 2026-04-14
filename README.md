@@ -354,6 +354,46 @@ test/
 └── integration/
 ```
 
+### Performance Testing (k6)
+
+Performance tests use [k6](https://k6.io/) to load-test the REST API endpoints.
+
+```
+test/performance/
+├── config.js              # Shared config: BASE_URL, thresholds, stages
+├── run-all.sh             # Runner script — executes all test scripts
+├── helpers/
+│   └── setup.js           # Test data helpers (create customer, place order)
+└── scripts/
+    ├── create-order.test.js       # POST /api/orders
+    ├── get-order-detail.test.js   # GET /api/orders/:id
+    └── list-orders.test.js        # GET /api/orders?page=&limit=
+```
+
+**Thresholds** (fail if breached):
+
+- `http_req_duration` — p95 < 500ms
+- `http_req_failed` — error rate < 5%
+
+```bash
+# Install k6 (macOS)
+brew install k6
+
+# Start the server first
+npm run dev
+
+# Run all performance tests
+npm run test:perf
+
+# Or run a single test
+k6 run test/performance/scripts/create-order.test.js
+
+# Override target URL (e.g. staging)
+BASE_URL=http://staging:3000 npm run test:perf
+```
+
+> Performance tests run in a **separate GitHub Actions workflow** (`performance.yml`) — triggered manually or weekly (Monday 6:00 UTC). They do **not** block the main CI pipeline.
+
 ---
 
 ## Scripts
@@ -376,6 +416,7 @@ test/
 | `npm run test:coverage`   | Run tests with coverage report                                       |
 | `npm run test:ci`         | Run tests with coverage in single-thread mode (CI use)               |
 | `npm run test:watch`      | Run tests in watch mode                                              |
+| `npm run test:perf`       | Run k6 performance tests locally (requires k6 + running server)      |
 | `npm run prepare`         | Set up Husky git hooks (runs automatically after `npm install`)      |
 
 ---

@@ -20,6 +20,7 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --runInBand",
     "test:watch": "jest --watch",
+    "test:perf": "bash test/performance/run-all.sh",
     "prepare": "husky"
   },
   "husky": {
