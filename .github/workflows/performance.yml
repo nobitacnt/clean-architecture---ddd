@@ -68,21 +68,32 @@ jobs:
           sudo apt-get install -y k6
 
       - name: Build and start server
-        if: ${{ github.event.inputs.base_url == '' }}
         run: |
           npm run build
           node dist/main.js &
+          SERVER_PID=$!
+          echo "Waiting for server at http://localhost:3000 (PID ${SERVER_PID})..."
+          SERVER_READY=false
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000/api/orders?page=1\&limit=1 > /dev/null 2>&1; then
-              echo "Server is ready"
+            if curl -sf "http://localhost:3000/health" > /dev/null 2>&1; then
+              echo "Server is ready (attempt $i)"
+              SERVER_READY=true
               break
             fi
-            echo "Waiting for server... ($i/30)"
+            echo "  attempt $i/30..."
             sleep 2
           done
+          if [ "$SERVER_READY" != "true" ]; then
+            echo "ERROR: Server did not become ready after 60 seconds."
+            echo "--- Last 50 lines of server output ---"
+            # The background process might have exited; check if it's alive
+            kill -0 $SERVER_PID 2>/dev/null && echo "Server process is still running" || echo "Server process has EXITED"
+            exit 1
+          fi
 
       - name: Run k6 performance tests
         env:
+          CI: 'true'
           BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:3000' }}
         run: BASE_URL=$BASE_URL bash test/performance/run-all.sh
 

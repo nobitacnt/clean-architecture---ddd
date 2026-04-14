@@ -37,17 +37,21 @@ wait_for_server() {
   return 1
 }
 
-# ── If BASE_URL is default localhost, check if server is already running ─────
+# ── Ensure the server is reachable before running tests ──────────────────────
 if [[ "${BASE_URL}" == "http://localhost:3000" ]]; then
   if curl -sf "${BASE_URL}/api/orders?page=1&limit=1" > /dev/null 2>&1; then
     echo "Server already running at ${BASE_URL}"
+  elif [[ "${CI:-}" == "true" ]]; then
+    # In CI the workflow is responsible for starting the server.
+    # Just wait for it to become ready (it may still be booting).
+    echo "CI detected — waiting for server started by the workflow..."
+    wait_for_server || { echo "ERROR: Server never became ready in CI. Check the 'Build and start server' step logs."; exit 1; }
   else
+    # Local development — build & start a throwaway server
     echo "Server not detected — starting local server..."
     cd "${ROOT_DIR}"
-    if [[ ! -d dist ]]; then
-      echo "Building project..."
-      npm run build
-    fi
+    echo "Building project (tsc + tsc-alias)..."
+    npm run build
     node dist/main.js &
     SERVER_PID=$!
     trap 'echo "Stopping server (PID ${SERVER_PID})"; kill ${SERVER_PID} 2>/dev/null' EXIT
@@ -71,9 +75,9 @@ for test_file in "${SCRIPTS_DIR}"/*.test.js; do
   echo "──────────────────────────────────────────────────────────"
 
   if k6 run -e "BASE_URL=${BASE_URL}" "${test_file}"; then
-    echo "✅ ${test_name} — PASSED"
+    echo "${test_name} — PASSED"
   else
-    echo "❌ ${test_name} — FAILED"
+    echo "${test_name} — FAILED"
     failed=1
   fi
 done
@@ -81,10 +85,10 @@ done
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 if [[ $failed -eq 1 ]]; then
-  echo " ❌ Some performance tests FAILED"
+  echo " Some performance tests FAILED"
   exit 1
 else
-  echo " ✅ All performance tests PASSED"
+  echo " All performance tests PASSED"
   exit 0
 fi
 
