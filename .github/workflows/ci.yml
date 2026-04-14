@@ -137,7 +137,6 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ─── Gate: all jobs must succeed — skipped = fail ───────────────────────────
-  # Branch protection should require ONLY this job.
   ci-passed:
     name: CI Passed
     if: always()
